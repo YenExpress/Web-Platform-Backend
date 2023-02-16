@@ -1,0 +1,76 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/auth/create/patient": {
+            "post": {
+                "description": "Validate patient credentials, authenticate and authorize with JWT provision",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Enable sign in and authorization for patient with valid credentials",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "490": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "auth.DefaultResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "idToken": {
+                    "type": "string"
+                },
+                "refreshToken": {
+                    "type": "string"
+                },
+                "tokenType": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

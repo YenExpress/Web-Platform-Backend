@@ -1,0 +1,49 @@
+definitions:
+  auth.DefaultResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  auth.LoginResponse:
+    properties:
+      accessToken:
+        type: string
+      idToken:
+        type: string
+      refreshToken:
+        type: string
+      tokenType:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth/create/patient:
+    post:
+      consumes:
+      - application/json
+      description: Validate patient credentials, authenticate and authorize with JWT
+        provision
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.DefaultResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/auth.DefaultResponse'
+        "490":
+          description: ""
+          schema:
+            $ref: '#/definitions/auth.DefaultResponse'
+      summary: Enable sign in and authorization for patient with valid credentials
+      tags:
+      - auth
+swagger: "2.0"
