@@ -2,8 +2,10 @@ package main
 
 import (
 	"YenExpress/auth"
+	pauth "YenExpress/auth/patientauth"
 	"YenExpress/config"
 	"YenExpress/docs"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -23,7 +25,7 @@ func init() {
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
-	config.ConnectDB(&auth.Patient{})
+	config.ConnectDB(&pauth.Patient{})
 	// taskmaster.StartTaskMaster()
 
 }
@@ -49,6 +51,8 @@ func main() {
 		MaxAge: 12 * time.Hour,
 	}))
 	router.GET("/", func(c *gin.Context) {
+		ip, _ := config.GetIPAddress(c)
+		fmt.Printf("client IP Address %v", ip)
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Backend Service for YenExpress Telemedicine platform Healthy and Active.",
 		})

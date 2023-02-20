@@ -5,16 +5,16 @@ import (
 	"time"
 )
 
-type LoginLimit struct {
-	FailedAttempts int       `json:"failed_attempts"`
-	BlockDuration  time.Time `json:"block_duration"`
+type failure struct {
+	Attempts  int       `json:"attempts"`
+	BlockTill time.Time `json:"block_until"`
 }
 
-func (t *LoginLimit) marshalBinary() ([]byte, error) {
+func (t *failure) marshalBinary() ([]byte, error) {
 	return json.Marshal(t)
 }
 
-func (t *LoginLimit) unmarshalBinary(data []byte) error {
+func (t *failure) unmarshalBinary(data []byte) error {
 	if err := json.Unmarshal(data, &t); err != nil {
 		return err
 	}

@@ -35,3 +35,25 @@ func GetNewAccountOTPMailTask(email string) (*util.Task, error) {
 
 	return task, nil
 }
+
+func GetRateLimitingTask(ip_addr, email string) (*util.Task, error) {
+	body := RateLimitingTaskBody{
+		email_address: email,
+		ip_address:    ip_addr,
+	}
+
+	pld, err := parseBody(body)
+	if err != nil {
+		log.Print("Parse: ", err)
+		return nil, err
+	}
+
+	task := &util.Task{
+		Name:     "",
+		Payload:  pld,
+		Priority: util.TaskPriorityHigh,
+		Retry:    5,
+	}
+
+	return task, nil
+}

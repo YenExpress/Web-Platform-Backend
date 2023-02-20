@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
+	"github.com/joho/godotenv"
 
 	cogman_config "github.com/Joker666/cogman/config"
-	"github.com/joho/godotenv"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -33,15 +33,22 @@ func Enum(
 	return false
 }
 
-func goDotEnvVariable(key string) string {
-
-	// load .env file
+func loadEnv() {
 	err := godotenv.Load(".env")
-
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
+}
 
+func loadLocalTestEnv() {
+	err := godotenv.Load("../../.env.test.local")
+	if err != nil {
+		log.Fatalf("Error loading .env.test.local file")
+	}
+}
+
+func goDotEnvVariable(key string) string {
+	loadEnv()
 	return os.Getenv(key)
 }
 
@@ -58,10 +65,8 @@ var (
 
 		AmqpURI:  goDotEnvVariable("AmqpURI"),
 		RedisURI: goDotEnvVariable("RedisURI"),
-		MongoURI: goDotEnvVariable("MongoURI"),
 
-		RedisTTL: time.Hour * 24 * 7,  // optional. default value 1 week
-		MongoTTL: time.Hour * 24 * 30, // optional. default value 1 month
+		RedisTTL: time.Hour * 24 * 7,
 
 		HighPriorityQueueCount: 2,
 		LowPriorityQueueCount:  4}
@@ -72,6 +77,7 @@ var (
 	JwtSecret          string = goDotEnvVariable("JwtSecret")
 	WebClientDomain    string = goDotEnvVariable("WebClientDomain")
 	ServerDomain       string = goDotEnvVariable("ServerDomain")
+	PatientAPIKey      string = goDotEnvVariable("PatientAPIKey")
 	PatientRedisClient        = redis.NewClient(&redis.Options{
 		Addr:     goDotEnvVariable("RedisHost") + ":" + goDotEnvVariable("RedisPort"),
 		Password: goDotEnvVariable("RedisPwd"),

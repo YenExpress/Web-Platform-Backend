@@ -1,4 +1,4 @@
-package guard
+package patientguard
 
 import (
 	"strings"
@@ -20,7 +20,7 @@ func ValidatePatientRefreshToken(token string) error {
 
 }
 
-func GetPatientFromToken(c *gin.Context) (*Patient, error) {
+func GetPatientIDFromToken(c *gin.Context) (*Patient, error) {
 	token := c.Request.Header.Get("Authorization")
 	if strings.HasPrefix(token, "Bearer ") {
 		token = strings.TrimPrefix(token, "Bearer ")

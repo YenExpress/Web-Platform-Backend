@@ -11,6 +11,11 @@ type MailTaskBody struct {
 	address string
 }
 
+type RateLimitingTaskBody struct {
+	ip_address    string
+	email_address string
+}
+
 func GetNewAccountOTPMailHandler(ctx context.Context, payload []byte) error {
 
 	var body MailTaskBody

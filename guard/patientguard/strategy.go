@@ -1,4 +1,4 @@
-package guard
+package patientguard
 
 import (
 	"YenExpress/config"
@@ -13,6 +13,7 @@ type Identifier struct {
 	Subject   string `json:"subject"`
 	Audience  string `json:"audience"`
 	UserId    uint   `json:"userId"`
+	UserName  string `json:"userName,omitempty"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Email     string `json:"email"`
@@ -61,9 +62,9 @@ func (maker *JWTMaker) CreatePatientToken(duration time.Time, user_id uint, vari
 	return signed_token
 }
 
-func (maker *JWTMaker) CreatePatientIdToken(userId uint, lastName, firstName, email, sex string) string {
+func (maker *JWTMaker) CreatePatientIdToken(userId uint, userName, lastName, firstName, email, sex string) string {
 	payload := &Identifier{UserId: userId, FirstName: firstName,
-		LastName: lastName, Email: email, Sex: sex,
+		LastName: lastName, Email: email, Sex: sex, UserName: userName,
 		Issuer: config.ServerDomain, Audience: config.WebClientDomain,
 		Subject: "Token Bearing User Identity"}
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)

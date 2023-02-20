@@ -1,12 +1,11 @@
-package auth
+package patientauth
 
 import (
 	"YenExpress/config"
-	"YenExpress/guard"
+	guard "YenExpress/guard/patientguard"
 
 	"time"
 
-	"github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -33,8 +32,7 @@ type Patient struct {
 	gorm.Model
 	FirstName   string
 	LastName    string
-	LastLogin   mysql.NullTime
-	IsActive    bool `gorm:"default:false"`
+	UserName    string
 	Email       string
 	Password    string
 	DateOfBirth datatypes.Date `gorm:"not null:false"`
@@ -76,6 +74,6 @@ func (user *Patient) GetRefreshToken() string {
 }
 
 func (user *Patient) GetIDToken() string {
-	return guard.PatientJWTMaker.CreatePatientIdToken(user.ID,
+	return guard.PatientJWTMaker.CreatePatientIdToken(user.ID, user.UserName,
 		user.LastName, user.FirstName, user.Email, user.Sex)
 }
