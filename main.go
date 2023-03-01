@@ -1,10 +1,10 @@
 package main
 
 import (
-	"YenExpress/auth"
-	pauth "YenExpress/auth/patientauth"
 	"YenExpress/config"
 	"YenExpress/docs"
+	patientAuth "YenExpress/service/patient/auth"
+	"YenExpress/toolbox"
 	"fmt"
 	"net/http"
 	"time"
@@ -25,8 +25,8 @@ func init() {
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
-	config.ConnectDB(&pauth.Patient{})
-	// taskmaster.StartTaskMaster()
+	config.ConnectDB(&patientAuth.Patient{})
+	toolbox.StartTaskMaster()
 
 }
 
@@ -34,10 +34,7 @@ func main() {
 
 	router := gin.Default()
 
-	auth.AuthRoute(router)
-	// admin.AdminRoute(router)
-	// medic.MedicRoute(router)
-	// patient.PatientRoute(router)
+	patientAuth.AuthRoute(router)
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{config.WebClientDomain},
@@ -58,6 +55,6 @@ func main() {
 		})
 	})
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	router.GET("/swagger/docs", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	router.Run(":8080")
 }

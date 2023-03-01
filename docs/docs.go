@@ -15,7 +15,48 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/create/patient": {
+        "/patient/auth/create/": {
+            "post": {
+                "description": "save user details to database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Create user account for patient",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/patient/auth/login/": {
             "post": {
                 "description": "Validate patient credentials, authenticate and authorize with JWT provision",
                 "consumes": [
@@ -41,14 +82,96 @@ const docTemplate = `{
                             "$ref": "#/definitions/auth.DefaultResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/auth.DefaultResponse"
                         }
                     },
-                    "490": {
-                        "description": "",
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/patient/auth/sendotp/email/process": {
+            "get": {
+                "description": "Send OTP to specified patient email address for authentication and registration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "initiate email validation for patient sign up or login concurrency",
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/patient/auth/validateotp/email/otp/process": {
+            "get": {
+                "description": "validate OTP to specified patient email address for authentication and registration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Enable patient sign up or login concurrency via validation",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "$ref": "#/definitions/auth.DefaultResponse"
                         }

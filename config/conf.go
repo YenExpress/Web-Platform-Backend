@@ -83,4 +83,7 @@ var (
 		Password: goDotEnvVariable("RedisPwd"),
 		DB:       0,
 	})
+
+	SendGridAPIKey      string = goDotEnvVariable("SENDGRID_API_KEY")
+	EmailAccountAddress string = goDotEnvVariable("EmailAccountAddress")
 )

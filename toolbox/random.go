@@ -1,4 +1,4 @@
-package util
+package toolbox
 
 import (
 	crypt_rand "crypto/rand"

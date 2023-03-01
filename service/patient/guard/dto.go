@@ -1,4 +1,4 @@
-package patientguard
+package guard
 
 import (
 	"time"

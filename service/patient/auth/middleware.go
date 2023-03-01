@@ -1,41 +1,40 @@
-package patientware
+package auth
 
 import (
 	"YenExpress/config"
-	guard "YenExpress/guard/patientguard"
-	"YenExpress/ratelimiter"
+	"YenExpress/service/patient/guard"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func AuthorizePatientWithAPIKey(c *gin.Context) bool {
+func AuthorizeWithAPIKey(c *gin.Context) bool {
 	IPAddress, _ := config.GetIPAddress(c)
 	apiKey, err := config.GetAPIKey(c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 		return false
 	}
-	if ratelimiter.PatientAPIKeyLimiter.MaxOutFailure(apiKey, IPAddress) {
+	if guard.APIKeyLimiter.MaxOutFailure(apiKey, IPAddress) {
 		c.JSON(http.StatusTooManyRequests, DefaultResponse{Message: "Failure To Validate API Key, Retry Later"})
 		return false
 	}
 	if apiKeyIsValid, err := config.ValidateAPIKey(apiKey, config.PatientAPIKey); !apiKeyIsValid {
-		ratelimiter.PatientAPIKeyLimiter.NoteFailure(apiKey, IPAddress)
+		guard.APIKeyLimiter.NoteFailure(apiKey, IPAddress)
 		c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 		return false
 	}
 	return true
 }
 
-func RateLimitPatientLogin(c *gin.Context) (*LoginCredentials, bool) {
+func RateLimitLogin(c *gin.Context) (*LoginCredentials, bool) {
 	var input *LoginCredentials
 	IPAddress, _ := config.GetIPAddress(c)
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
 		return &LoginCredentials{}, false
 	}
-	if ratelimiter.PatientLoginLimiter.MaxOutFailure(input.Email, IPAddress) {
+	if guard.LoginLimiter.MaxOutFailure(input.Email, IPAddress) {
 		c.JSON(http.StatusTooManyRequests, DefaultResponse{Message: "Too Many Failed Login Attempts, Retry Later"})
 		return &LoginCredentials{}, false
 	}
@@ -43,13 +42,26 @@ func RateLimitPatientLogin(c *gin.Context) (*LoginCredentials, bool) {
 	return input, true
 }
 
-func AuthorizePatientWithAccessToken(c *gin.Context) (*guard.Patient, bool) {
+func RateLimitOTPValidation(c *gin.Context) (*valOTPCred, bool) {
+	cred := &valOTPCred{}
+	if err := cred.loadFromParams(c); err != nil {
+		c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
+		return &valOTPCred{}, false
+	}
+	if guard.EmailValidationLimiter.MaxOutFailure(cred.email, cred.ipAddress) {
+		c.JSON(http.StatusTooManyRequests, DefaultResponse{Message: "Too Many Failed Login Attempts, Retry Later"})
+		return &valOTPCred{}, false
+	}
+	return cred, true
+}
+
+func AuthorizeWithAccessToken(c *gin.Context) (*guard.Patient, bool) {
 	token, err := config.GetBearerToken(c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 		return &guard.Patient{}, false
 	}
-	user, err := guard.ValidatePatientAccessToken(token)
+	user, err := guard.ValidateAccessToken(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 		return &guard.Patient{}, false
@@ -57,13 +69,13 @@ func AuthorizePatientWithAccessToken(c *gin.Context) (*guard.Patient, bool) {
 	return user, true
 }
 
-func AuthorizePatientWithRefreshToken(c *gin.Context) bool {
+func AuthorizeWithRefreshToken(c *gin.Context) bool {
 	token, err := config.GetBearerToken(c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 		return false
 	}
-	err = guard.ValidatePatientRefreshToken(token)
+	err = guard.ValidateRefreshToken(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 		return false

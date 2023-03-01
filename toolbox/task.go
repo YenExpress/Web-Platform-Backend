@@ -1,8 +1,9 @@
-package taskmaster
+package toolbox
 
 import (
 	"YenExpress/config"
 
+	"fmt"
 	"log"
 
 	"github.com/Joker666/cogman"
@@ -13,7 +14,6 @@ func StartTaskMaster() {
 	if err := cogman.StartBackground(config.TaskMasterCfg); err != nil {
 		log.Fatal(err.Error())
 	}
-
 }
 
 func QueueTask(task *util.Task, handler util.Handler) {
@@ -23,14 +23,7 @@ func QueueTask(task *util.Task, handler util.Handler) {
 
 }
 
-func SendNewAccountOTP(address string) {
-	task, err := GetNewAccountOTPMailTask(address)
-	if err != nil {
-		return
-	}
-	handlerfunc := util.HandlerFunc(GetNewAccountOTPMailHandler)
-	if err != nil {
-		return
-	}
-	QueueTask(task, handlerfunc)
+func NameTask(task string, user string) string {
+	return fmt.Sprintf(
+		"%v_for_%v_taggedBy_%v", task, user, GenerateRandStr(10))
 }
