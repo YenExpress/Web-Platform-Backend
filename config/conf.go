@@ -59,6 +59,7 @@ func RegisterValidation() bool {
 }
 
 var (
+	ServicePort   string                = goDotEnvVariable("ServicePort")
 	TaskMasterCfg *cogman_config.Config = &cogman_config.Config{
 		ConnectionTimeout: time.Minute * 10,
 		RequestTimeout:    time.Second * 5,

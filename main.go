@@ -6,6 +6,7 @@ import (
 	patientAuth "YenExpress/service/patient/auth"
 	"YenExpress/toolbox"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -56,5 +57,13 @@ func main() {
 	})
 
 	router.GET("/swagger/docs", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	router.Run(":8080")
+
+	port := config.ServicePort
+	if port == "" {
+		port = "8080"
+	}
+
+	if err := router.Run(":" + port); err != nil {
+		log.Panicf("error: %s", err)
+	}
 }
