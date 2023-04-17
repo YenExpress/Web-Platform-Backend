@@ -4,7 +4,6 @@ import (
 	"YenExpress/config"
 	"YenExpress/service/patient/guard"
 
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,43 +22,40 @@ import (
 // @Router       /patient/auth/create/ [post]
 func Register(c *gin.Context) {
 
-	if AuthorizeWithAPIKey(c) {
+	func() {
 
-		func() {
+		var input *CreatePatientDTO
 
-			var input *CreatePatientDTO
-
-			if err := c.ShouldBindJSON(&input); err != nil {
-				c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
-				return
-			}
-
-			var user *Patient
-			err := config.DB.Where("email = ?", input.Email).First(&user).Error
-			if err == nil {
-				c.JSON(http.StatusConflict, DefaultResponse{Message: "User Account Already Exists"})
-				return
-			}
-
-			user = &Patient{
-				FirstName: input.FirstName, LastName: input.LastName,
-				Email: input.Email, Password: input.Password,
-				Sex:      input.Sex,
-				Location: input.Location, PhoneNumber: input.PhoneNumber,
-			}
-
-			_, err = user.SaveNew()
-
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, DefaultResponse{Message: err.Error()})
-				return
-			}
-
-			c.JSON(http.StatusCreated, DefaultResponse{Message: "User Account created"})
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
 			return
+		}
 
-		}()
-	}
+		var user *Patient
+		err := config.DB.Where("email = ?", input.Email).First(&user).Error
+		if err == nil {
+			c.JSON(http.StatusConflict, DefaultResponse{Message: "User Account Already Exists"})
+			return
+		}
+
+		user = &Patient{
+			FirstName: input.FirstName, LastName: input.LastName,
+			Email: input.Email, Password: input.Password,
+			Sex:      input.Sex,
+			Location: input.Location, PhoneNumber: input.PhoneNumber,
+		}
+
+		_, err = user.SaveNew()
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, DefaultResponse{Message: err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, DefaultResponse{Message: "User Account created"})
+		return
+
+	}()
 }
 
 // LoginPatient godoc
@@ -77,41 +73,37 @@ func Register(c *gin.Context) {
 // @Router        /patient/auth/login/ [post]
 func Login(c *gin.Context) {
 
-	if AuthorizeWithAPIKey(c) {
+	credentials, allowedToLogin := RateLimitLogin(c)
 
-		credentials, allowedToLogin := RateLimitLogin(c)
+	if allowedToLogin {
+		func() {
 
-		if allowedToLogin {
-			func() {
-
-				var user *Patient
-				err := config.DB.Where("Email = ?", credentials.Email).First(&user).Error
-				if err != nil {
-					fmt.Println(err)
-					c.JSON(http.StatusUnauthorized, DefaultResponse{Message: "Incorrect Email"})
-					return
-				}
-
-				err = user.ValidatePwd(credentials.Password)
-				if err != nil {
-					guard.LoginLimiter.NoteFailure(credentials.Email, credentials.IPAddress)
-					c.JSON(http.StatusForbidden, DefaultResponse{Message: "Incorrect Password"})
-					return
-				}
-				if PatientLoginManager.checkActiveSession(user.ID) {
-					PatientLoginManager.authConcurrentSignin(user.Email)
-					c.JSON(http.StatusConflict, DefaultResponse{Message: "One Time Password for sign in sent to user email address to enable account concurrency!!"})
-					return
-				}
-				sessionID := PatientLoginManager.createNewSession(*user, credentials.IPAddress)
-				IDToken, AccessToken, RefreshToken := PatientLoginManager.generateAuthTokens(*user, sessionID)
-
-				c.JSON(http.StatusOK, LoginResponse{
-					IDToken, AccessToken, RefreshToken, "Bearer"})
+			var user *Patient
+			err := config.DB.Where("Email = ?", credentials.Email).First(&user).Error
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, DefaultResponse{Message: "Incorrect Email"})
 				return
+			}
 
-			}()
-		}
+			err = user.ValidatePwd(credentials.Password)
+			if err != nil {
+				guard.LoginLimiter.UpdateRequest(credentials.Email, credentials.IPAddress)
+				c.JSON(http.StatusForbidden, DefaultResponse{Message: "Incorrect Password"})
+				return
+			}
+			if PatientLoginManager.checkActiveSession(user.ID) {
+				PatientLoginManager.authConcurrentSignin(user.Email)
+				c.JSON(http.StatusConflict, DefaultResponse{Message: "One Time Password for sign in sent to user email address to enable account concurrency!!"})
+				return
+			}
+			sessionID := PatientLoginManager.createNewSession(*user, credentials.IPAddress)
+			IDToken, AccessToken, RefreshToken := PatientLoginManager.generateAuthTokens(*user, sessionID)
+
+			c.JSON(http.StatusOK, LoginResponse{
+				IDToken, AccessToken, RefreshToken, "Bearer"})
+			return
+
+		}()
 	}
 }
 
@@ -127,14 +119,10 @@ func Login(c *gin.Context) {
 // @Router        /patient/auth/sendotp/email/process [get]
 func GetOneTimePass(c *gin.Context) {
 
-	if AuthorizeWithAPIKey(c) {
+	cred, allowedToGenerate := RateLimitOTPGeneration(c)
+	if allowedToGenerate {
+
 		func() {
-			cred := &getOTPCred{}
-			err := cred.loadFromParams(c)
-			if err != nil {
-				c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
-				return
-			}
 
 			if cred.process == "signup" {
 				var user *Patient
@@ -144,11 +132,13 @@ func GetOneTimePass(c *gin.Context) {
 					return
 				}
 				PatientRegistrationManager.authNewEmail(cred.email)
+				guard.CreateOTPLimiter.UpdateRequest(cred.email, cred.ipAddress)
 				c.JSON(http.StatusAccepted, DefaultResponse{Message: "OTP sent to mail address provided to confirm ownership and proceed with registration"})
 				return
 
 			} else if cred.process == "signin" {
 				PatientLoginManager.authConcurrentSignin(cred.email)
+				guard.CreateOTPLimiter.UpdateRequest(cred.email, cred.ipAddress)
 				c.JSON(http.StatusAccepted, DefaultResponse{Message: "One Time Password for sign in sent to user email address to enable account concurrency!!"})
 				return
 			}
@@ -169,45 +159,43 @@ func GetOneTimePass(c *gin.Context) {
 // @Router        /patient/auth/validateotp/email/otp/process [get]
 func ValidateOneTimePass(c *gin.Context) {
 
-	if AuthorizeWithAPIKey(c) {
-		credentials, allowedToValidate := RateLimitOTPValidation(c)
-		if allowedToValidate {
-			func() {
-				if credentials.process == "signup" {
-					var user *Patient
-					err := config.DB.Where("email = ?", credentials.email).First(&user).Error
-					if err == nil {
-						c.JSON(http.StatusConflict, DefaultResponse{Message: "User Account Already Exists"})
-						return
-					}
-					err = PatientRegistrationManager.enableSignUpwithMail(credentials.email, credentials.otp)
-					if err != nil {
-						guard.EmailValidationLimiter.NoteFailure(credentials.email, credentials.ipAddress)
-						c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
-						return
-					}
-					c.JSON(http.StatusOK, DefaultResponse{Message: "Email Validation Successful"})
-					return
-
-				} else if credentials.process == "signin" {
-					var user *Patient
-					err := config.DB.Where("email = ?", credentials.email).First(&user).Error
-					if err != nil {
-						c.JSON(http.StatusUnauthorized, DefaultResponse{Message: "User Unknown"})
-						return
-					}
-					idTok, accTok, refTok, err := PatientLoginManager.enableConcurrentSignin(*user, credentials.ipAddress, credentials.otp)
-					if err != nil {
-						guard.EmailValidationLimiter.NoteFailure(credentials.email, credentials.ipAddress)
-						c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
-						return
-					}
-					c.JSON(http.StatusOK, LoginResponse{idTok, accTok, refTok, "Bearer"})
+	credentials, allowedToValidate := RateLimitOTPValidation(c)
+	if allowedToValidate {
+		func() {
+			if credentials.process == "signup" {
+				var user *Patient
+				err := config.DB.Where("email = ?", credentials.email).First(&user).Error
+				if err == nil {
+					c.JSON(http.StatusConflict, DefaultResponse{Message: "User Account Already Exists"})
 					return
 				}
+				err = PatientRegistrationManager.enableSignUpwithMail(credentials.email, credentials.otp)
+				if err != nil {
+					guard.EmailValidationLimiter.UpdateRequest(credentials.email, credentials.ipAddress)
+					c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
+					return
+				}
+				c.JSON(http.StatusOK, DefaultResponse{Message: "Email Validation Successful"})
+				return
 
-			}()
-		}
+			} else if credentials.process == "signin" {
+				var user *Patient
+				err := config.DB.Where("email = ?", credentials.email).First(&user).Error
+				if err != nil {
+					c.JSON(http.StatusUnauthorized, DefaultResponse{Message: "User Unknown"})
+					return
+				}
+				idTok, accTok, refTok, err := PatientLoginManager.enableConcurrentSignin(*user, credentials.ipAddress, credentials.otp)
+				if err != nil {
+					guard.EmailValidationLimiter.UpdateRequest(credentials.email, credentials.ipAddress)
+					c.JSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
+					return
+				}
+				c.JSON(http.StatusOK, LoginResponse{idTok, accTok, refTok, "Bearer"})
+				return
+			}
 
+		}()
 	}
+
 }
