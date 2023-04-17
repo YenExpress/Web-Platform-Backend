@@ -56,7 +56,9 @@ func main() {
 		})
 	})
 
-	router.GET("/swagger/docs", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler,
+		ginSwagger.URL(fmt.Sprintf("%v/swagger/doc.json", config.ServerDomain)),
+		ginSwagger.DefaultModelsExpandDepth(1)))
 
 	port := config.ServicePort
 	if port == "" {
