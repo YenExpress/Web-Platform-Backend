@@ -8,8 +8,8 @@ func AuthRoute(router *gin.Engine) {
 
 	group := router.Group("/patient/auth")
 
-	group.POST("/create/", AuthorizeWithAPIKey(), Register)
+	group.POST("/register/", AuthorizeWithAPIKey(), Register)
 	group.POST("/login/", AuthorizeWithAPIKey(), Login)
-	group.GET("/sendotp/:email/*process", AuthorizeWithAPIKey(), GetOneTimePass)
-	group.GET("/validateotp/:email/:otp/*process", AuthorizeWithAPIKey(), ValidateOneTimePass)
+	group.POST("/confirm-email/:process/", AuthorizeWithAPIKey(), GenerateOTPforAuth)
+	group.POST("/verify-otp/:process/", AuthorizeWithAPIKey(), ValidateOneTimePass)
 }

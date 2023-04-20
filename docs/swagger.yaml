@@ -82,7 +82,7 @@ paths:
       tags:
       - auth
   /patient/auth/sendotp/email/process:
-    get:
+    post:
       consumes:
       - application/json
       description: Send OTP to specified patient email address for authentication
@@ -106,7 +106,7 @@ paths:
       tags:
       - auth
   /patient/auth/validateotp/email/otp/process:
-    get:
+    post:
       consumes:
       - application/json
       description: validate OTP to specified patient email address for authentication

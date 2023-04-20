@@ -6,7 +6,6 @@ import (
 	"errors"
 	"strings"
 
-	"net/mail"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +13,36 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
+
+type confirmEmail struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type verifyOTP struct {
+	Email string `json:"email" binding:"required,email"`
+	OTP   string `json:"otp" binding:"required,len=7"`
+}
+
+type OTPValidationCredentials struct {
+	ipAddress string
+	process   string
+	email     string
+	otp       string
+}
+
+func (cred *OTPValidationCredentials) loadFromParams(c *gin.Context) error {
+	ipAddr, err := config.GetIPAddress(c)
+	if err != nil {
+		return err
+	}
+	prcs := strings.Split(c.Param("process"), "/")[1]
+	if prcs != "signin" && prcs != "signup" {
+		return errors.New("process param value must be either signup or signin")
+	}
+	cred.ipAddress, cred.process = ipAddr, prcs
+	return nil
+
+}
 
 type DefaultResponse struct {
 	Message string `json:"message,omitempty"`
@@ -23,45 +52,6 @@ type LoginCredentials struct {
 	Email     string `json:"email" binding:"required,email"`
 	Password  string `json:"password" binding:"required"`
 	IPAddress string
-}
-
-type getOTPCred struct {
-	email   string
-	process string
-}
-
-func (cred *getOTPCred) loadFromParams(c *gin.Context) error {
-	email, process := strings.Split(c.Param("email"), "=")[1], strings.Split(c.Param("process"), "/")[1]
-	if _, err := mail.ParseAddress(email); err != nil {
-		return errors.New("email param value provided not valid email address")
-	} else if process != "signin" && process != "signup" {
-		return errors.New("process param value must be either signup or signin")
-	}
-	cred.email, cred.process = email, process
-	return nil
-
-}
-
-type valOTPCred struct {
-	email     string
-	ipAddress string
-	otp       string
-	process   string
-}
-
-func (cred *valOTPCred) loadFromParams(c *gin.Context) error {
-	cred.ipAddress, _ = config.GetIPAddress(c)
-	email, otp, process := strings.Split(c.Param("email"), "=")[1], strings.Split(c.Param("otp"), "=")[1], strings.Split(c.Param("process"), "/")[1]
-	if _, err := mail.ParseAddress(email); err != nil {
-		return errors.New("email param value provided not valid email address")
-	} else if len(otp) != 7 {
-		return errors.New("otp param value must be of seven characters")
-	} else if process != "signin" && process != "signup" {
-		return errors.New("process param value must be either signup or signin")
-	}
-	cred.email, cred.otp, cred.process = email, otp, process
-	return nil
-
 }
 
 type LoginResponse struct {

@@ -110,7 +110,7 @@ const docTemplate = `{
             }
         },
         "/patient/auth/sendotp/email/process": {
-            "get": {
+            "post": {
                 "description": "Send OTP to specified patient email address for authentication and registration",
                 "consumes": [
                     "application/json"
@@ -145,7 +145,7 @@ const docTemplate = `{
             }
         },
         "/patient/auth/validateotp/email/otp/process": {
-            "get": {
+            "post": {
                 "description": "validate OTP to specified patient email address for authentication and registration",
                 "consumes": [
                     "application/json"

@@ -45,28 +45,40 @@ func RateLimitLogin(c *gin.Context) (*LoginCredentials, bool) {
 	return input, true
 }
 
-func RateLimitOTPGeneration(c *gin.Context) (*valOTPCred, bool) {
-	cred := &valOTPCred{}
+func RateLimitOTPGeneration(c *gin.Context) (*OTPValidationCredentials, bool) {
+	var input *confirmEmail
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
+		return &OTPValidationCredentials{}, false
+	}
+	cred := &OTPValidationCredentials{}
 	if err := cred.loadFromParams(c); err != nil {
 		c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
-		return &valOTPCred{}, false
+		return &OTPValidationCredentials{}, false
 	}
+	cred.email = input.Email
 	if !guard.CreateOTPLimiter.AllowRequest(cred.email, cred.ipAddress) {
-		c.JSON(http.StatusTooManyRequests, DefaultResponse{Message: "Too Many Failed Login Attempts, Retry Later"})
-		return &valOTPCred{}, false
+		c.JSON(http.StatusTooManyRequests, DefaultResponse{Message: "Too Many OTP Generation Attempts, Retry Later"})
+		return &OTPValidationCredentials{}, false
 	}
 	return cred, true
 }
 
-func RateLimitOTPValidation(c *gin.Context) (*valOTPCred, bool) {
-	cred := &valOTPCred{}
+func RateLimitOTPValidation(c *gin.Context) (*OTPValidationCredentials, bool) {
+	var input *verifyOTP
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
+		return &OTPValidationCredentials{}, false
+	}
+	cred := &OTPValidationCredentials{}
 	if err := cred.loadFromParams(c); err != nil {
 		c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
-		return &valOTPCred{}, false
+		return &OTPValidationCredentials{}, false
 	}
+	cred.email, cred.otp = input.Email, input.OTP
 	if guard.EmailValidationLimiter.AllowRequest(cred.email, cred.ipAddress) {
-		c.JSON(http.StatusTooManyRequests, DefaultResponse{Message: "Too Many Failed Login Attempts, Retry Later"})
-		return &valOTPCred{}, false
+		c.JSON(http.StatusTooManyRequests, DefaultResponse{Message: "Too Many OTP Validation Attempts, Retry Later"})
+		return &OTPValidationCredentials{}, false
 	}
 	return cred, true
 }
