@@ -4,7 +4,6 @@ import (
 	"YenExpress/config"
 	"encoding/json"
 	"errors"
-	"strings"
 
 	"time"
 
@@ -35,7 +34,7 @@ func (cred *OTPValidationCredentials) loadFromParams(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	prcs := strings.Split(c.Param("process"), "/")[1]
+	prcs := c.Param("process")
 	if prcs != "signin" && prcs != "signup" {
 		return errors.New("process param value must be either signup or signin")
 	}

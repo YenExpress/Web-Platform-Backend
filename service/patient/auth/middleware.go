@@ -72,11 +72,11 @@ func RateLimitOTPValidation(c *gin.Context) (*OTPValidationCredentials, bool) {
 	}
 	cred := &OTPValidationCredentials{}
 	if err := cred.loadFromParams(c); err != nil {
-		c.JSON(http.StatusBadRequest, DefaultResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, DefaultResponse{Message: err.Error()})
 		return &OTPValidationCredentials{}, false
 	}
 	cred.email, cred.otp = input.Email, input.OTP
-	if guard.EmailValidationLimiter.AllowRequest(cred.email, cred.ipAddress) {
+	if !guard.EmailValidationLimiter.AllowRequest(cred.email, cred.ipAddress) {
 		c.JSON(http.StatusTooManyRequests, DefaultResponse{Message: "Too Many OTP Validation Attempts, Retry Later"})
 		return &OTPValidationCredentials{}, false
 	}
