@@ -38,14 +38,15 @@ func main() {
 	patientAuth.AuthRoute(router)
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{config.WebClientDomain},
+		// AllowOrigins:     []string{config.WebClientDomain},
 		AllowMethods:     []string{"GET", "POST", "DELETE", "PATCH", "PUT"},
-		AllowHeaders:     []string{"Origin"},
-		ExposeHeaders:    []string{"Content-Length"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
+		AllowAllOrigins:  true,
 		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == config.WebClientDomain
-		},
+		// AllowOriginFunc: func(origin string) bool {
+		// 	return origin == config.WebClientDomain
+		// },
 		MaxAge: 12 * time.Hour,
 	}))
 	router.GET("/", func(c *gin.Context) {

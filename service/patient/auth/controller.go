@@ -3,6 +3,7 @@ package auth
 import (
 	"YenExpress/config"
 	"YenExpress/service/patient/guard"
+	"strings"
 
 	"net/http"
 
@@ -198,4 +199,29 @@ func ValidateOneTimePass(c *gin.Context) {
 		}()
 	}
 
+}
+
+// LogoutPatient godoc
+// @Summary      Enable sign out and session delete for patient with valid credentials
+// @Description  Log patient out with server wipe of session data
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  LoginResponse
+// @Failure      401  {object}  DefaultResponse
+// @Failure      403  {object} 	DefaultResponse
+// @Router        /patient/auth/logout/ [post]
+func Logout(c *gin.Context) {
+
+	func() {
+
+		token := c.Request.Header.Get("Authorization")
+		token = strings.TrimPrefix(token, "Bearer ")
+		load, _ := guard.GetTokenPayload(token, "access_token")
+		PatientLoginManager.endSession(load.UserId, load.SessionID)
+
+		c.JSON(http.StatusOK, DefaultResponse{Message: "Account Successfully Logged out"})
+		return
+
+	}()
 }

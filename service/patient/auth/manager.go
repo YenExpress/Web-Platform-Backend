@@ -21,15 +21,15 @@ import (
 
 var loginMailHandler = postoffice.MailHandler[postoffice.OneTimePassword]{
 	Mailer: postoffice.PostMan[postoffice.OneTimePassword]{
-		MailTemplatePath: "/postoffice/templates/anotherLoginEmail.html",
-		Subject:          "Email Validation",
+		MailTemplatePath: "/postoffice/templates/concurrentLoginValidation.html",
+		Subject:          "Login Validation",
 	},
 }
 
 var signUpMailHandler = postoffice.MailHandler[postoffice.OneTimePassword]{
 	Mailer: postoffice.PostMan[postoffice.OneTimePassword]{
-		MailTemplatePath: "/postoffice/templates/registrationValidationEmail.html",
-		Subject:          "Email Validation",
+		MailTemplatePath: "/postoffice/templates/newAccountEmailValidation.html",
+		Subject:          "New Account Email Validation",
 	},
 }
 

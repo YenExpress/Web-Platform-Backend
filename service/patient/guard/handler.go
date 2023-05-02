@@ -2,12 +2,9 @@ package guard
 
 import (
 	"YenExpress/config"
-	"strings"
 	"time"
 
 	limiter "github.com/codeNino/ratelimiter"
-
-	"github.com/gin-gonic/gin"
 )
 
 func ValidateAccessToken(token string) (*Patient, error) {
@@ -24,20 +21,32 @@ func ValidateRefreshToken(token string) error {
 
 }
 
-func GetPatientIDFromToken(c *gin.Context) (*Patient, error) {
-	token := c.Request.Header.Get("Authorization")
-	if strings.HasPrefix(token, "Bearer ") {
-		token = strings.TrimPrefix(token, "Bearer ")
-		user, err := ValidateAccessToken(token)
-		if err == nil {
+func GetTokenPayload(token, variety string) (*Payload, error) {
+	load, err := Bearer.GetPayloadFromToken(token, variety)
+	if err == nil {
 
-			return user, nil
-		} else {
-			return &Patient{}, err
-		}
+		return load, nil
+	} else {
+		return &Payload{}, err
 	}
-	return &Patient{}, ErrInvalidToken
+
 }
+
+// func GetIDFromToken(c *gin.Context, variety string) (*, error) {
+// 	token := c.Request.Header.Get("Authorization")
+// 	if strings.HasPrefix(token, "Bearer ") {
+// 		token = strings.TrimPrefix(token, "Bearer ")
+// 		load, err := Bearer.GetPayloadFromToken(token, variety)
+// 		// user, err := ValidateAccessToken(token)
+// 		if err == nil {
+
+// 			return user, nil
+// 		} else {
+// 			return &Patient{}, err
+// 		}
+// 	}
+// 	return &Patient{}, ErrInvalidToken
+// }
 
 var (
 	APIKeyLimiter = limiter.RateLimiter{
