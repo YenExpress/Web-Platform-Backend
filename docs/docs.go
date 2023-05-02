@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/patient/auth/create/": {
+        "/patient/auth/confirm-email/process/": {
             "post": {
-                "description": "save user details to database",
+                "description": "Send OTP to specified patient email address for authentication and registration",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,28 +27,22 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Create user account for patient",
+                "summary": "initiate email validation for patient sign up or login concurrency",
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "202": {
+                        "description": "Accepted",
                         "schema": {
                             "$ref": "#/definitions/auth.DefaultResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/auth.DefaultResponse"
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "$ref": "#/definitions/auth.DefaultResponse"
                         }
@@ -109,9 +103,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/patient/auth/sendotp/email/process": {
-            "post": {
-                "description": "Send OTP to specified patient email address for authentication and registration",
+        "/patient/auth/logout/": {
+            "delete": {
+                "description": "Log patient out with server wipe of session data",
                 "consumes": [
                     "application/json"
                 ],
@@ -121,12 +115,12 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "initiate email validation for patient sign up or login concurrency",
+                "summary": "Enable sign out and session delete for patient with valid credentials",
                 "responses": {
-                    "202": {
-                        "description": "Accepted",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/auth.LoginResponse"
                         }
                     },
                     "401": {
@@ -135,8 +129,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/auth.DefaultResponse"
                         }
                     },
-                    "429": {
-                        "description": "Too Many Requests",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/auth.DefaultResponse"
                         }
@@ -144,7 +138,48 @@ const docTemplate = `{
                 }
             }
         },
-        "/patient/auth/validateotp/email/otp/process": {
+        "/patient/auth/register/": {
+            "post": {
+                "description": "save user details to database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Create user account for patient",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/patient/auth/verify-otp/process/": {
             "post": {
                 "description": "validate OTP to specified patient email address for authentication and registration",
                 "consumes": [

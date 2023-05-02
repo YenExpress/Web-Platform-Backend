@@ -117,7 +117,7 @@ func Login(c *gin.Context) {
 // @Success      202  {object}  DefaultResponse
 // @Failure      401  {object}  DefaultResponse
 // @Failure      429  {object}  DefaultResponse
-// @Router        /patient/auth/sendotp/process [post]
+// @Router        /patient/auth/confirm-email/process/ [post]
 func GenerateOTPforAuth(c *gin.Context) {
 
 	cred, allowedToGenerate := RateLimitOTPGeneration(c)
@@ -157,7 +157,7 @@ func GenerateOTPforAuth(c *gin.Context) {
 // @Success      200  {object}  LoginResponse
 // @Failure      401  {object}  DefaultResponse
 // @Failure      429  {object}  DefaultResponse
-// @Router        /patient/auth/validateotp/process [post]
+// @Router        /patient/auth/verify-otp/process/ [post]
 func ValidateOneTimePass(c *gin.Context) {
 
 	credentials, allowedToValidate := RateLimitOTPValidation(c)
@@ -210,7 +210,7 @@ func ValidateOneTimePass(c *gin.Context) {
 // @Success      200  {object}  LoginResponse
 // @Failure      401  {object}  DefaultResponse
 // @Failure      403  {object} 	DefaultResponse
-// @Router        /patient/auth/logout/ [post]
+// @Router        /patient/auth/logout/ [delete]
 func Logout(c *gin.Context) {
 
 	func() {

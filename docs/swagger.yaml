@@ -18,31 +18,28 @@ definitions:
 info:
   contact: {}
 paths:
-  /patient/auth/create/:
+  /patient/auth/confirm-email/process/:
     post:
       consumes:
       - application/json
-      description: save user details to database
+      description: Send OTP to specified patient email address for authentication
+        and registration
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "202":
+          description: Accepted
           schema:
             $ref: '#/definitions/auth.DefaultResponse'
-        "400":
-          description: Bad Request
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/auth.DefaultResponse'
-        "409":
-          description: Conflict
+        "429":
+          description: Too Many Requests
           schema:
             $ref: '#/definitions/auth.DefaultResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/auth.DefaultResponse'
-      summary: Create user account for patient
+      summary: initiate email validation for patient sign up or login concurrency
       tags:
       - auth
   /patient/auth/login/:
@@ -81,31 +78,57 @@ paths:
       summary: Enable sign in and authorization for patient with valid credentials
       tags:
       - auth
-  /patient/auth/sendotp/email/process:
-    post:
+  /patient/auth/logout/:
+    delete:
       consumes:
       - application/json
-      description: Send OTP to specified patient email address for authentication
-        and registration
+      description: Log patient out with server wipe of session data
       produces:
       - application/json
       responses:
-        "202":
-          description: Accepted
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/auth.DefaultResponse'
+            $ref: '#/definitions/auth.LoginResponse'
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/auth.DefaultResponse'
-        "429":
-          description: Too Many Requests
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/auth.DefaultResponse'
-      summary: initiate email validation for patient sign up or login concurrency
+      summary: Enable sign out and session delete for patient with valid credentials
       tags:
       - auth
-  /patient/auth/validateotp/email/otp/process:
+  /patient/auth/register/:
+    post:
+      consumes:
+      - application/json
+      description: save user details to database
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.DefaultResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.DefaultResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/auth.DefaultResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.DefaultResponse'
+      summary: Create user account for patient
+      tags:
+      - auth
+  /patient/auth/verify-otp/process/:
     post:
       consumes:
       - application/json
