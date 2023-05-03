@@ -13,4 +13,5 @@ func AuthRoute(router *gin.Engine) {
 	group.POST("/confirm-email/:process/", AuthorizeWithAPIKey(), GenerateOTPforAuth)
 	group.POST("/verify-otp/:process/", AuthorizeWithAPIKey(), ValidateOneTimePass)
 	group.DELETE("/logout/", AuthorizeWithAPIKey(), AuthorizeWithAccessToken(), Logout)
+	group.GET("/refresh/", AuthorizeWithAPIKey(), AuthorizeWithRefreshToken(), Refresh)
 }

@@ -65,7 +65,7 @@ func (maker *JWTMaker) CreateIdentifier(payload Identifier) string {
 	return signed_token
 }
 
-func (maker *JWTMaker) VerifyToken(token, variety string) (*Patient, error) {
+func (maker *JWTMaker) VerifyToken(token, variety string) error {
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
@@ -77,20 +77,20 @@ func (maker *JWTMaker) VerifyToken(token, variety string) (*Patient, error) {
 	if err != nil {
 		verr, ok := err.(*jwt.ValidationError)
 		if ok && errors.Is(verr.Inner, ErrExpiredToken) {
-			return nil, ErrExpiredToken
+			return ErrExpiredToken
 		}
-		return nil, ErrInvalidToken
+		return ErrInvalidToken
 	}
 	payload, ok := jwtToken.Claims.(*Payload)
 	if !ok {
-		return nil, ErrInvalidToken
+		return ErrInvalidToken
 	}
 	var user *Patient
 	err = config.DB.Where("ID = ?", payload.UserId).First(&user).Error
 	if err != nil || payload.Class != variety {
-		return nil, ErrInvalidToken
+		return ErrInvalidToken
 	}
-	return user, err
+	return err
 
 }
 

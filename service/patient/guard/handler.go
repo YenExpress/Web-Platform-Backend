@@ -7,18 +7,8 @@ import (
 	limiter "github.com/codeNino/ratelimiter"
 )
 
-func ValidateAccessToken(token string) (*Patient, error) {
-	user, err := Bearer.VerifyToken(token, "access_token")
-	if err != nil {
-		return nil, err
-	}
-	return user, err
-}
-
-func ValidateRefreshToken(token string) error {
-	_, err := Bearer.VerifyToken(token, "refresh_token")
-	return err
-
+func ValidateToken(token string, variety string) error {
+	return Bearer.VerifyToken(token, variety)
 }
 
 func GetTokenPayload(token, variety string) (*Payload, error) {
@@ -31,22 +21,6 @@ func GetTokenPayload(token, variety string) (*Payload, error) {
 	}
 
 }
-
-// func GetIDFromToken(c *gin.Context, variety string) (*, error) {
-// 	token := c.Request.Header.Get("Authorization")
-// 	if strings.HasPrefix(token, "Bearer ") {
-// 		token = strings.TrimPrefix(token, "Bearer ")
-// 		load, err := Bearer.GetPayloadFromToken(token, variety)
-// 		// user, err := ValidateAccessToken(token)
-// 		if err == nil {
-
-// 			return user, nil
-// 		} else {
-// 			return &Patient{}, err
-// 		}
-// 	}
-// 	return &Patient{}, ErrInvalidToken
-// }
 
 var (
 	APIKeyLimiter = limiter.RateLimiter{

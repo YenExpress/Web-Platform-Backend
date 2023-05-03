@@ -47,6 +47,10 @@ type DefaultResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
+type RefreshTokenResponse struct {
+	AccessToken string `json:"accessToken"`
+}
+
 type LoginCredentials struct {
 	Email     string `json:"email" binding:"required,email"`
 	Password  string `json:"password" binding:"required"`

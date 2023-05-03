@@ -59,6 +59,9 @@ func RegisterValidation() bool {
 }
 
 var (
+	DevOrigin     string                = goDotEnvVariable("DevCrossOrigin")
+	ProdOrigin    string                = goDotEnvVariable("ProdCrossOrigin")
+	StagingOrigin string                = goDotEnvVariable("StagingCrossOrigin")
 	ServicePort   string                = goDotEnvVariable("ServicePort")
 	TaskMasterCfg *cogman_config.Config = &cogman_config.Config{
 		ConnectionTimeout: time.Minute * 10,

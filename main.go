@@ -35,25 +35,21 @@ func main() {
 
 	router := gin.Default()
 
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{config.DevOrigin, config.StagingOrigin, config.ProdOrigin},
+		AllowMethods:     []string{"GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	patientAuth.AuthRoute(router)
 
-	router.Use(cors.New(cors.Config{
-		// AllowOrigins:     []string{config.WebClientDomain},
-		AllowMethods:     []string{"GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"},
-		AllowHeaders:     []string{"Origin, Authorization"},
-		ExposeHeaders:    []string{"*"},
-		AllowAllOrigins:  true,
-		AllowCredentials: true,
-		// AllowOriginFunc: func(origin string) bool {
-		// 	return origin == config.WebClientDomain
-		// },
-		MaxAge: 12 * time.Hour,
-	}))
 	router.GET("/", func(c *gin.Context) {
 		ip, _ := config.GetIPAddress(c)
-		fmt.Printf("client IP Address %v", ip)
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Backend Service for YenExpress Telemedicine platform Healthy and Active.",
+			"message": fmt.Sprintf("Index Backend Service URL for YenExpress called by client with IP Address %v", ip),
 		})
 	})
 

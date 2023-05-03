@@ -90,7 +90,7 @@ func AuthorizeWithAccessToken() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 			return
 		}
-		_, err = guard.ValidateAccessToken(token)
+		err = guard.ValidateToken(token, "access_token")
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 			return
@@ -106,7 +106,7 @@ func AuthorizeWithRefreshToken() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 			return
 		}
-		err = guard.ValidateRefreshToken(token)
+		err = guard.ValidateToken(token, "refresh_token")
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, DefaultResponse{Message: err.Error()})
 			return

@@ -4,11 +4,25 @@ import (
 	"YenExpress/config"
 	"YenExpress/service/patient/guard"
 	"strings"
+	"time"
 
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+func GetIDsFromReq(c *gin.Context, variety string) (user_id uint, session_id string) {
+	authCred := c.Request.Header.Get("Authorization")
+	token := strings.TrimPrefix(authCred, "Bearer ")
+	load, err := guard.GetTokenPayload(token, variety)
+	if err == nil {
+
+		return 0, ""
+	} else {
+		user_id, session_id = load.UserId, load.SessionID
+	}
+	return
+}
 
 // RegisterPatient godoc
 // @Summary      Create user account for patient
@@ -20,6 +34,7 @@ import (
 // @Failure      400  {object}  DefaultResponse
 // @Failure      409  {object} 	DefaultResponse
 // @Failure      500  {object}  DefaultResponse
+// @Failure      429  {object}  DefaultResponse
 // @Router       /patient/auth/register/ [post]
 func Register(c *gin.Context) {
 
@@ -201,6 +216,34 @@ func ValidateOneTimePass(c *gin.Context) {
 
 }
 
+// RefreshPatientToken godoc
+// @Summary      Refresh Expired Access Token
+// @Description  Create New Access Token for Patient Authentication with Refresh Token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  RefreshTokenResponse
+// @Failure      401  {object}  DefaultResponse
+// @Failure      429  {object}  DefaultResponse
+// @Router        /patient/auth/refresh/ [get]
+func Refresh(c *gin.Context) {
+
+	func() {
+
+		user_id, session_id := GetIDsFromReq(c, "refresh_token")
+		newAccessToken := guard.Bearer.CreateToken(
+			guard.Payload{
+				UserId: user_id, SessionID: session_id,
+				Expiration: time.Now().Add(time.Hour * 24 * 3),
+				Issuer:     config.ServerDomain, Class: "access_token",
+			})
+
+		c.JSON(http.StatusOK, RefreshTokenResponse{AccessToken: newAccessToken})
+		return
+
+	}()
+}
+
 // LogoutPatient godoc
 // @Summary      Enable sign out and session delete for patient with valid credentials
 // @Description  Log patient out with server wipe of session data
@@ -209,16 +252,14 @@ func ValidateOneTimePass(c *gin.Context) {
 // @Produce      json
 // @Success      200  {object}  LoginResponse
 // @Failure      401  {object}  DefaultResponse
-// @Failure      403  {object} 	DefaultResponse
+// @Failure      429  {object}  DefaultResponse
 // @Router        /patient/auth/logout/ [delete]
 func Logout(c *gin.Context) {
 
 	func() {
 
-		token := c.Request.Header.Get("Authorization")
-		token = strings.TrimPrefix(token, "Bearer ")
-		load, _ := guard.GetTokenPayload(token, "access_token")
-		PatientLoginManager.endSession(load.UserId, load.SessionID)
+		user_id, session_id := GetIDsFromReq(c, "access_token")
+		PatientLoginManager.endSession(user_id, session_id)
 
 		c.JSON(http.StatusOK, DefaultResponse{Message: "Account Successfully Logged out"})
 		return

@@ -170,7 +170,7 @@ func (manager *loginManager) generateAuthTokens(user Patient, sessionID string) 
 	go func(token *string) {
 		*token = guard.Bearer.CreateToken(
 			guard.Payload{
-				UserId:     user.ID,
+				UserId: user.ID, SessionID: sessionID,
 				Expiration: time.Now().Add(time.Hour * 24 * 30),
 				Issuer:     config.ServerDomain, Class: "refresh_token",
 			})
