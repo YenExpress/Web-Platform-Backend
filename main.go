@@ -37,12 +37,11 @@ func main() {
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{config.DevOrigin, config.StagingOrigin, config.ProdOrigin},
-		AllowMethods:     []string{"GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"},
-		AllowHeaders:     []string{"*"},
-		ExposeHeaders:    []string{"*"},
+		AllowMethods:     []string{},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+		MaxAge:           12 * time.Hour}))
 
 	patientAuth.AuthRoute(router)
 
