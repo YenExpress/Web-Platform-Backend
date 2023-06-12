@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/patient/auth/confirm-email/process/": {
+        "/admin/auth/create-account/": {
             "post": {
-                "description": "Send OTP to specified patient email address for authentication and registration",
+                "description": "save user details to database",
                 "consumes": [
                     "application/json"
                 ],
@@ -27,24 +27,293 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "initiate email validation for patient sign up or login concurrency",
+                "summary": "Create user account for admin",
                 "responses": {
-                    "202": {
-                        "description": "Accepted",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/auth/login/": {
+            "post": {
+                "description": "Validate Admin credentials, authenticate and authorize with JWT provision",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Enable sign in and authorization for Admin with valid credentials",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/auth/login/send-otp": {
+            "post": {
+                "description": "Send OTP to specified admin email address for authentication",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "initiate email validation for admin login concurrency",
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/auth/login/verify": {
+            "post": {
+                "description": "validate OTP to specified admin email address for authentication",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Enable admin login concurrency via otp confirmation",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/auth/logout/": {
+            "delete": {
+                "description": "Log patient out with server wipe of session data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Enable sign out and session delete for admin with valid credentials",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/auth/refresh/": {
+            "get": {
+                "description": "Create New Access Token for Admin Authentication with Refresh Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh Expired Access Token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RefreshTokenResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/patient/auth/email/send-otp": {
+            "post": {
+                "description": "Send OTP to specified patient email address for new account registration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "initiate email validation for patient sign up",
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/patient/auth/email/verify": {
+            "post": {
+                "description": "Verify OTP sent to specified patient email address for new account registration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Enable patient sign up via email validation with OTP",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     }
                 }
@@ -67,37 +336,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginResponse"
+                            "$ref": "#/definitions/dto.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     }
                 }
@@ -105,7 +374,7 @@ const docTemplate = `{
         },
         "/patient/auth/logout/": {
             "delete": {
-                "description": "Log patient out with server wipe of session data",
+                "description": "Log patient out with server",
                 "consumes": [
                     "application/json"
                 ],
@@ -115,24 +384,24 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "Enable sign out and session delete for patient with valid credentials",
+                "summary": "Enable sign out for patient with valid credentials",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginResponse"
+                            "$ref": "#/definitions/dto.LoginResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     }
                 }
@@ -155,19 +424,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.RefreshTokenResponse"
+                            "$ref": "#/definitions/dto.RefreshTokenResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     }
                 }
@@ -190,66 +459,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "429": {
                         "description": "Too Many Requests",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/patient/auth/verify-otp/process/": {
-            "post": {
-                "description": "validate OTP to specified patient email address for authentication and registration",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Enable patient sign up or login concurrency via validation",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/auth.LoginResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "$ref": "#/definitions/auth.DefaultResponse"
+                            "$ref": "#/definitions/dto.DefaultResponse"
                         }
                     }
                 }
@@ -257,7 +491,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.DefaultResponse": {
+        "dto.DefaultResponse": {
             "type": "object",
             "properties": {
                 "message": {
@@ -265,7 +499,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.LoginResponse": {
+        "dto.LoginResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -282,7 +516,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.RefreshTokenResponse": {
+        "dto.RefreshTokenResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {

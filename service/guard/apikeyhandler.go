@@ -1,65 +1,20 @@
-package config
+package guard
 
 import (
+	"YenExpress/config"
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
-	"net"
 	"strings"
+	"time"
+
+	limiter "github.com/codeNino/ratelimiter"
 
 	"github.com/gin-gonic/gin"
 )
-
-func GetIPAddress(c *gin.Context) (string, error) {
-	//Get IP from the X-REAL-IP header
-	ip := c.Request.Header.Get("X-REAL-IP")
-	netIP := net.ParseIP(ip)
-	if netIP != nil {
-		return ip, nil
-	}
-
-	//Get IP from X-FORWARDED-FOR header
-	ips := c.Request.Header.Get("X-FORWARDED-FOR")
-	splitIps := strings.Split(ips, ",")
-	for _, ip := range splitIps {
-		netIP := net.ParseIP(ip)
-		if netIP != nil {
-			return ip, nil
-		}
-	}
-
-	//Get IP from RemoteAddr
-	ip, _, err := net.SplitHostPort(c.Request.RemoteAddr)
-	if err != nil {
-		return "", err
-	}
-	netIP = net.ParseIP(ip)
-	if netIP != nil {
-		return ip, nil
-	}
-	return "", fmt.Errorf("No valid ip found")
-}
-
-func GetBearerToken(c *gin.Context) (string, error) {
-	credentials := c.Request.Header.Get("Authorization")
-	credList := strings.Split(credentials, ",")
-	if len(credList) > 2 {
-		return "", errors.New("Authorization Header with incorrect format")
-	}
-	token := ""
-	for _, val := range credList {
-		if strings.HasPrefix(val, "Bearer ") {
-			token = strings.TrimPrefix(val, "Bearer ")
-		}
-	}
-	if token == "" {
-		return "", errors.New("Bearer Unknown")
-	}
-	return token, nil
-}
 
 func GetAPIKey(c *gin.Context) (string, error) {
 	credentials := c.Request.Header.Get("Authorization")
@@ -106,4 +61,10 @@ func apiKeyIsValid(provided, valid []byte) bool {
 func HashAPIKey(rawKey string) string {
 	hash := sha256.Sum256([]byte(rawKey))
 	return fmt.Sprintf("%x", hash)
+}
+
+var APIKeyLimiter = limiter.RateLimiter{
+	TotalLimit: 15, BurstLimit: 3, MaxTime: time.Hour * 24, BurstPeriod: time.Minute * 30,
+	Client: config.PatientRedisClient, TotalLimitPrefix: "apiKey_fail_per_day",
+	BurstLimitPrefix: "apiKey_fail_consecutive",
 }

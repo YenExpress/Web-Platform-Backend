@@ -3,8 +3,12 @@ package main
 import (
 	"YenExpress/config"
 	"YenExpress/docs"
-	patientAuth "YenExpress/service/patient/auth"
-	"YenExpress/toolbox"
+	ad_model "YenExpress/service/admin/models"
+	ad_route "YenExpress/service/admin/routes"
+	p_model "YenExpress/service/patient/models"
+	p_route "YenExpress/service/patient/routes"
+
+	"YenExpress/helper"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,8 +30,9 @@ func init() {
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
-	config.ConnectDB(&patientAuth.Patient{})
-	toolbox.StartTaskMaster()
+	config.ConnectDB(&p_model.Patient{})
+	config.ConnectDB(&ad_model.Admin{})
+	helper.StartTaskMaster()
 
 }
 
@@ -43,10 +48,11 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour}))
 
-	patientAuth.AuthRoute(router)
+	p_route.AuthRoute(router)
+	ad_route.AuthRoute(router)
 
 	router.GET("/", func(c *gin.Context) {
-		ip, _ := config.GetIPAddress(c)
+		ip, _ := helper.GetIPAddress(c)
 		c.JSON(http.StatusOK, gin.H{
 			"message": fmt.Sprintf("Index Backend Service URL for YenExpress called by client with IP Address %v", ip),
 		})
