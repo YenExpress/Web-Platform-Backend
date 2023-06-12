@@ -84,20 +84,33 @@ func (maker *JWTStrategy) GetPayloadFromToken(token, variety string) (*Bearer, e
 	return payload, nil
 }
 
+// func GetBearerToken(c *gin.Context) (string, error) {
+// 	credentials := c.Request.Header.Get("Authorization")
+// 	credList := strings.Split(credentials, ",")
+// 	if len(credList) > 2 {
+// 		return "", errors.New("Authorization Header with incorrect format")
+// 	}
+// 	token := ""
+// 	for _, val := range credList {
+// 		if strings.HasPrefix(val, "Bearer ") {
+// 			token = strings.TrimPrefix(val, "Bearer ")
+// 		}
+// 	}
+// 	if token == "" {
+// 		return "", errors.New("Bearer Unknown")
+// 	}
+// 	return token, nil
+// }
+
 func GetBearerToken(c *gin.Context) (string, error) {
-	credentials := c.Request.Header.Get("Authorization")
-	credList := strings.Split(credentials, ",")
-	if len(credList) > 2 {
-		return "", errors.New("Authorization Header with incorrect format")
-	}
-	token := ""
-	for _, val := range credList {
-		if strings.HasPrefix(val, "Bearer ") {
-			token = strings.TrimPrefix(val, "Bearer ")
+	authString := c.Request.Header.Get("Authorization")
+	if strings.HasPrefix(authString, "Bearer ") {
+		token := strings.TrimPrefix(authString, "Bearer ")
+		if token == "" {
+			return "", errors.New("Bearer Unknown")
 		}
+		return token, nil
+
 	}
-	if token == "" {
-		return "", errors.New("Bearer Unknown")
-	}
-	return token, nil
+	return "", errors.New("Bearer Unknown")
 }

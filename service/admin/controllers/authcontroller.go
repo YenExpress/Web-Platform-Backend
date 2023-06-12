@@ -98,7 +98,8 @@ func Login(c *gin.Context) {
 			}
 			if pro.LoginService.CheckActiveSession(user.ID) {
 				pro.LoginService.AuthConcurrentSignin(user.Email)
-				c.JSON(http.StatusConflict, dto.DefaultResponse{Message: "One Time Password for sign in sent to user email address to enable account concurrency!!"})
+				c.JSON(http.StatusConflict, dto.DefaultResponse{Message: "One Time Password for sign in sent to Admin email address to enable account concurrency!!"})
+				pro.CreateOTPLimiter.UpdateRequest(user.Email, credentials.IPAddress)
 				return
 			}
 			sessionID := pro.LoginService.CreateNewSession(*user, credentials.IPAddress)

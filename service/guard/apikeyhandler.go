@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	limiter "github.com/codeNino/ratelimiter"
@@ -16,18 +15,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// func GetAPIKey(c *gin.Context) (string, error) {
+// 	credentials := c.Request.Header.Get("Authorization")
+// 	credList := strings.Split(credentials, ",")
+// 	if len(credList) > 2 {
+// 		return "", errors.New("Authorization Header with incorrect format")
+// 	}
+// 	apiKey := ""
+// 	for _, val := range credList {
+// 		if strings.HasPrefix(val, "APIKey ") {
+// 			apiKey = strings.TrimPrefix(val, "APIKey ")
+// 		}
+// 	}
+// 	if apiKey == "" {
+// 		return "", errors.New("APIKey Unknown")
+// 	}
+// 	return apiKey, nil
+// }
+
 func GetAPIKey(c *gin.Context) (string, error) {
-	credentials := c.Request.Header.Get("Authorization")
-	credList := strings.Split(credentials, ",")
-	if len(credList) > 2 {
-		return "", errors.New("Authorization Header with incorrect format")
-	}
-	apiKey := ""
-	for _, val := range credList {
-		if strings.HasPrefix(val, "APIKey ") {
-			apiKey = strings.TrimPrefix(val, "APIKey ")
-		}
-	}
+	apiKey := c.Request.Header.Get("x-api-key")
 	if apiKey == "" {
 		return "", errors.New("APIKey Unknown")
 	}
