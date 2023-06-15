@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -12,10 +13,11 @@ import (
 
 type Patient struct {
 	gorm.Model
+	ID          string `gorm:"primarykey"`
 	FirstName   string
 	LastName    string
 	UserName    string
-	Email       string
+	Email       string `gorm:"unique"`
 	Password    string
 	DateOfBirth datatypes.Date `gorm:"not null:false"`
 	Sex         string         `gorm:"default:Male"`
@@ -33,6 +35,7 @@ func (user *Patient) SaveNew() (*Patient, error) {
 }
 
 func (user *Patient) BeforeCreate(*gorm.DB) error {
+	user.ID = uuid.New().String()
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -60,7 +63,7 @@ type SessionData struct {
 	IPAddress string    `json:"ipAddr,omitempty"`
 	Email     string    `json:"Email"`
 	LoggedIn  time.Time `json:"loggedIn"`
-	UserID    uint      `json:"userID"`
+	UserID    string    `json:"userID"`
 }
 
 type SessionStore struct {

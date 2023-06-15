@@ -5,6 +5,7 @@ import (
 	"YenExpress/docs"
 	ad_model "YenExpress/service/admin/models"
 	ad_route "YenExpress/service/admin/routes"
+	"YenExpress/service/dto"
 	p_model "YenExpress/service/patient/models"
 	p_route "YenExpress/service/patient/routes"
 
@@ -32,6 +33,7 @@ func init() {
 
 	config.ConnectDB(&p_model.Patient{})
 	config.ConnectDB(&ad_model.Admin{})
+	config.ConnectDB(&dto.WaitList{})
 	helper.StartTaskMaster()
 
 }
@@ -56,6 +58,36 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"message": fmt.Sprintf("Index Backend Service URL for YenExpress called by client with IP Address %v", ip),
 		})
+	})
+
+	router.POST("/join-waitlist", func(c *gin.Context) {
+
+		var input *dto.ConfirmEmail
+
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, dto.DefaultResponse{Message: err.Error()})
+			return
+		}
+
+		var list *dto.WaitList
+		err := config.DB.Where("email = ?", input.Email).First(&list).Error
+		if err == nil {
+			c.JSON(http.StatusOK, dto.DefaultResponse{Message: "Already on WaitList"})
+			return
+		}
+
+		list = &dto.WaitList{Email: input.Email}
+
+		err = list.SaveNew()
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, dto.DefaultResponse{Message: err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, dto.DefaultResponse{Message: "WaitList Joined"})
+		return
+
 	})
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler,

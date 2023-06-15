@@ -16,7 +16,7 @@ var (
 
 type JWTStrategy struct {
 	SecretKey string
-	UserValid func(id interface{}) bool
+	UserValid func(id string) bool
 }
 
 func (maker *JWTStrategy) CreateToken(payload Bearer) (token string) {

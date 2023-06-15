@@ -9,7 +9,7 @@ type Identifier struct {
 	Issuer    string `json:"issuer"`
 	Subject   string `json:"subject"`
 	Audience  string `json:"audience"`
-	UserId    uint   `json:"userId"`
+	UserId    string `json:"userId"`
 	UserName  string `json:"userName,omitempty"`
 	Role      string `json:"role,omitempty"`
 	FirstName string `json:"firstName"`
@@ -27,7 +27,7 @@ func (data *Identifier) Valid() error {
 }
 
 type Bearer struct {
-	UserId     uint      `json:"userId"`
+	UserId     string    `json:"userId"`
 	SessionID  string    `json:"sessionID"`
 	Expiration time.Time `json:"expiration"`
 	Issuer     string    `json:"issuer"`

@@ -190,7 +190,11 @@ func RefreshAuthToken(c *gin.Context) {
 
 	func() {
 
-		user_id, session_id := GetIDsFromRequest(c, "refresh_token")
+		user_id, session_id, err := GetIDsFromRequest(c, "refresh_token")
+		if err != nil {
+			c.JSON(500, dto.DefaultResponse{Message: err.Error()})
+			return
+		}
 		newAccessToken := pro.JWTMaker.CreateToken(
 			guard.Bearer{
 				UserId: user_id, SessionID: session_id,
@@ -218,7 +222,11 @@ func Logout(c *gin.Context) {
 
 	func() {
 
-		user_id, session_id := GetIDsFromRequest(c, "access_token")
+		user_id, session_id, err := GetIDsFromRequest(c, "access_token")
+		if err != nil {
+			c.JSON(500, dto.DefaultResponse{Message: err.Error()})
+			return
+		}
 		pro.LoginService.EndSession(user_id, session_id)
 
 		c.JSON(http.StatusOK, dto.DefaultResponse{Message: "Account Successfully Logged out"})
