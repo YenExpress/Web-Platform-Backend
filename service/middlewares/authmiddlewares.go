@@ -23,7 +23,7 @@ func APIKeyAuthorization() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, dto.DefaultResponse{Message: "Failure To Validate API Key, Retry Later"})
 			return
 		}
-		if apiKeyIsValid, err := guard.ValidateAPIKey(apiKey, config.PatientAPIKey); !apiKeyIsValid {
+		if apiKeyIsValid, err := guard.ValidateAPIKey(apiKey, config.APIKey); !apiKeyIsValid {
 			guard.APIKeyLimiter.UpdateRequest(IPAddress)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, dto.DefaultResponse{Message: err.Error()})
 			return

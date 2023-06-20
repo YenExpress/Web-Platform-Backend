@@ -15,18 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterPatient godoc
-// @Summary      Create user account for patient
-// @Description  save user details to database
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      201  {object}  dto.DefaultResponse
-// @Failure      400  {object}  dto.DefaultResponse
-// @Failure      409  {object} 	dto.DefaultResponse
-// @Failure      500  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router       /patient/auth/register/ [post]
+// Create user account for patient
+// Save user details to database
 func Register(c *gin.Context) {
 
 	func() {
@@ -65,19 +55,8 @@ func Register(c *gin.Context) {
 	}()
 }
 
-// LoginPatient godoc
-// @Summary      Enable sign in and authorization for patient with valid credentials
-// @Description  Validate patient credentials, authenticate and authorize with JWT provision
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  dto.LoginResponse
-// @Failure      400  {object}  dto.DefaultResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      403  {object} 	dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Failure      409  {object}  dto.DefaultResponse
-// @Router        /patient/auth/login/ [post]
+// Enable sign in and authorization for patient with valid credentials
+// Validate patient credentials, authenticate and authorize with JWT provision
 func Login(c *gin.Context) {
 
 	func() {
@@ -110,16 +89,8 @@ func Login(c *gin.Context) {
 	}()
 }
 
-// SendOTPToPatientMail godoc
-// @Summary      initiate email validation for patient sign up
-// @Description  Send OTP to specified patient email address for new account registration
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      202  {object}  dto.DefaultResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router        /patient/auth/email/send-otp [post]
+// Initiate email validation for patient sign up
+// Send OTP to specified patient email address for new account registration
 func SendNewMailOTP(c *gin.Context) {
 
 	cred, allowedToGenerate := mid.RateLimitOTPGeneration(c)
@@ -142,17 +113,8 @@ func SendNewMailOTP(c *gin.Context) {
 	}
 }
 
-// ValidatePatientWithOTPSentToMail godoc
-// @Summary      Enable patient sign up via email validation with OTP
-// @Description  Verify OTP sent to specified patient email address for new account registration
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  dto.DefaultResponse
-// @Success      200  {object}  dto.LoginResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router        /patient/auth/email/verify [post]
+// Enable patient sign up via email validation with OTP
+// Verify OTP sent to specified patient email address for new account registration
 func ConfirmNewMail(c *gin.Context) {
 
 	credentials, allowedToValidate := mid.RateLimitOTPValidation(c)
@@ -178,21 +140,17 @@ func ConfirmNewMail(c *gin.Context) {
 
 }
 
-// RefreshPatientToken godoc
-// @Summary      Refresh Expired Access Token
-// @Description  Create New Access Token for Patient Authentication with Refresh Token
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  dto.RefreshTokenResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router        /patient/auth/refresh/ [get]
+// Refresh Expired Access Token
+// Create New Access Token for Patient Authentication with Refresh Token
 func Refresh(c *gin.Context) {
 
 	func() {
 
-		user_id, session_id := GetIDsFromRequest(c, "refresh_token")
+		user_id, session_id, err := GetIDsFromRequest(c, "refresh_token")
+		if err != nil {
+			c.JSON(500, dto.DefaultResponse{Message: err.Error()})
+			return
+		}
 		newAccessToken := pro.JWTMaker.CreateToken(
 			guard.Bearer{
 				UserId: user_id, SessionID: session_id,
@@ -206,16 +164,8 @@ func Refresh(c *gin.Context) {
 	}()
 }
 
-// LogoutPatient godoc
-// @Summary      Enable sign out for patient with valid credentials
-// @Description  Log patient out with server
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  dto.LoginResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router        /patient/auth/logout/ [delete]
+// Enable sign out for patient with valid credentials
+// Log patient out with server
 func Logout(c *gin.Context) {
 
 	func() {

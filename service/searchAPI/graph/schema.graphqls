@@ -1,0 +1,33 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+scalar Time
+
+type Drug {
+  id: String!
+  brandName: String!
+  category: String!
+  price: String!
+  description: String
+  availability: String
+  photo: String
+}
+
+type DrugOrder {
+  id: String!
+  orderDate: Time!
+  itemsDescription: String
+  amountPaid: String!
+  status: String!
+  deliveryAddress: String! 
+  customerPhone: String!
+  customerID : String!
+
+}
+
+type Query {
+  Drugs: [Drug!]!
+  DrugOrders: [DrugOrder!]!
+}
+

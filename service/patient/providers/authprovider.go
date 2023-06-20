@@ -18,7 +18,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func userExists(id interface{}) bool {
+func userExists(id string) bool {
 	var user *model.Patient
 	err := config.DB.Where("ID = ?", id).First(&user).Error
 	if err != nil {

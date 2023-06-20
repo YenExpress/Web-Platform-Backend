@@ -2,11 +2,12 @@ package main
 
 import (
 	"YenExpress/config"
-	"YenExpress/docs"
 	ad_model "YenExpress/service/admin/models"
 	ad_route "YenExpress/service/admin/routes"
+	"YenExpress/service/dto"
 	p_model "YenExpress/service/patient/models"
 	p_route "YenExpress/service/patient/routes"
+	"YenExpress/service/searchAPI"
 
 	"YenExpress/helper"
 	"fmt"
@@ -14,24 +15,17 @@ import (
 	"net/http"
 	"time"
 
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
 
-	docs.SwaggerInfo.Title = "Yen Express APIs"
-	docs.SwaggerInfo.Description = "This is the APIs server for the Yen Express Telemedicine Platform."
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = config.ServerDomain
-	docs.SwaggerInfo.BasePath = "/"
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
-
 	config.ConnectDB(&p_model.Patient{})
 	config.ConnectDB(&ad_model.Admin{})
+	config.ConnectDB(&dto.Drug{})
+	config.ConnectDB(&dto.DrugOrder{})
+	config.ConnectDB(&dto.WaitList{})
 	helper.StartTaskMaster()
 
 }
@@ -43,7 +37,7 @@ func main() {
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{config.DevOrigin, config.StagingOrigin, config.ProdOrigin},
 		AllowMethods:     []string{},
-		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "x-api-key"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour}))
@@ -58,9 +52,38 @@ func main() {
 		})
 	})
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler,
-		ginSwagger.URL(fmt.Sprintf("%v/swagger/doc.json", config.ServerDomain)),
-		ginSwagger.DefaultModelsExpandDepth(1)))
+	router.POST("/join-waitlist", func(c *gin.Context) {
+
+		var input *dto.ConfirmEmail
+
+		if err := c.ShouldBindJSON(&input); err != nil {
+			c.JSON(http.StatusBadRequest, dto.DefaultResponse{Message: err.Error()})
+			return
+		}
+
+		var list *dto.WaitList
+		err := config.DB.Where("email = ?", input.Email).First(&list).Error
+		if err == nil {
+			c.JSON(http.StatusOK, dto.DefaultResponse{Message: "Already on WaitList"})
+			return
+		}
+
+		list = &dto.WaitList{Email: input.Email}
+
+		err = list.SaveNew()
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, dto.DefaultResponse{Message: err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, dto.DefaultResponse{Message: "WaitList Joined"})
+		return
+
+	})
+
+	router.POST("/query", searchAPI.GraphqlHandler())
+	router.GET("/graphql-playground", searchAPI.PlaygroundHandler())
 
 	port := config.ServicePort
 	if port == "" {

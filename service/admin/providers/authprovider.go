@@ -6,8 +6,6 @@ import (
 	"YenExpress/service/guard"
 	"YenExpress/service/postoffice"
 
-	"strconv"
-
 	"YenExpress/helper"
 	"errors"
 	"log"
@@ -21,7 +19,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func userExists(id interface{}) bool {
+func userExists(id string) bool {
 	var user *model.Admin
 	err := config.DB.Where("ID = ?", id).First(&user).Error
 	if err != nil {
@@ -50,47 +48,45 @@ func (manager *LoginManager) CreateNewSession(user model.Admin, ip_addr string) 
 		},
 	}
 	tokenized, _ := data.Encode()
-	manager.client.HSet(manager.sessionKey, strconv.FormatUint(uint64(user.ID), 10), tokenized).Val()
+	manager.client.HSet(manager.sessionKey, user.ID, tokenized).Val()
 	return sessID
 }
 
 // add another session initiated by user on a different device
 // return error and sessionID value
 func (manager *LoginManager) AddSession(user model.Admin, ip_addr string) string {
-	userKey := strconv.FormatUint(uint64(user.ID), 10)
-	if manager.client.HExists(manager.sessionKey, userKey).Val() {
+	if manager.client.HExists(manager.sessionKey, user.ID).Val() {
 		var cookie model.SessionStore
-		cookie.Decode([]byte(manager.client.HGet(manager.sessionKey, userKey).Val()))
+		cookie.Decode([]byte(manager.client.HGet(manager.sessionKey, user.ID).Val()))
 		sessID := uuid.New().String()
 		cookie.Session[sessID] = model.SessionData{
 			SessionID: sessID, IPAddress: ip_addr,
 			Email: user.Email, LoggedIn: time.Now(), UserID: user.ID,
 		}
 		tokenized, _ := cookie.Encode()
-		manager.client.HSet(manager.sessionKey, userKey, tokenized).Val()
+		manager.client.HSet(manager.sessionKey, user.ID, tokenized).Val()
 		return sessID
 	}
 	return manager.CreateNewSession(user, ip_addr)
 }
 
 // check if user is logged in and has an active session
-func (manager *LoginManager) CheckActiveSession(userID uint) bool {
-	return manager.client.HExists(manager.sessionKey, strconv.FormatUint(uint64(userID), 10)).Val()
+func (manager *LoginManager) CheckActiveSession(userID string) bool {
+	return manager.client.HExists(manager.sessionKey, userID).Val()
 }
 
-func (manager *LoginManager) EndSession(userID uint, sessionID string) model.SessionData {
-	userKey := strconv.FormatUint(uint64(userID), 10)
-	if manager.client.HExists(manager.sessionKey, userKey).Val() {
+func (manager *LoginManager) EndSession(userID string, sessionID string) model.SessionData {
+	if manager.client.HExists(manager.sessionKey, userID).Val() {
 		var cookie model.SessionStore
-		cookie.Decode([]byte(manager.client.HGet(manager.sessionKey, userKey).Val()))
+		cookie.Decode([]byte(manager.client.HGet(manager.sessionKey, userID).Val()))
 		session_data := cookie.Session[sessionID]
 		delete(cookie.Session, sessionID)
 		if len(cookie.Session) == 0 {
-			manager.client.HDel(manager.sessionKey, userKey)
+			manager.client.HDel(manager.sessionKey, userID)
 			return session_data
 		}
 		tokenized, _ := cookie.Encode()
-		manager.client.HSet(manager.sessionKey, userKey, tokenized).Val()
+		manager.client.HSet(manager.sessionKey, userID, tokenized).Val()
 		return session_data
 	}
 	return model.SessionData{}

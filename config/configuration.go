@@ -81,7 +81,7 @@ var (
 	JwtSecret          string = goDotEnvVariable("JwtSecret")
 	WebClientDomain    string = goDotEnvVariable("WebClientDomain")
 	ServerDomain       string = goDotEnvVariable("ServerDomain")
-	PatientAPIKey      string = goDotEnvVariable("PatientAPIKey")
+	APIKey             string = goDotEnvVariable("APIKey")
 	PatientRedisClient        = redis.NewClient(&redis.Options{
 		Addr:     goDotEnvVariable("RedisHost") + ":" + goDotEnvVariable("RedisPort"),
 		Password: goDotEnvVariable("RedisPwd"),
