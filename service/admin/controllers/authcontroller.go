@@ -15,18 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreateAdmin godoc
-// @Summary      Create user account for admin
-// @Description  save user details to database
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      201  {object}  dto.DefaultResponse
-// @Failure      400  {object}  dto.DefaultResponse
-// @Failure      409  {object} 	dto.DefaultResponse
-// @Failure      500  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router       /admin/auth/create-account/ [post]
+// Create user account for admin
+// Save user details to database
 func CreateAdmin(c *gin.Context) {
 
 	func() {
@@ -64,18 +54,8 @@ func CreateAdmin(c *gin.Context) {
 	}()
 }
 
-// LoginAdmin godoc
-// @Summary      Enable sign in and authorization for Admin with valid credentials
-// @Description  Validate Admin credentials, authenticate and authorize with JWT provision
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  dto.LoginResponse
-// @Failure      400  {object}  dto.DefaultResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      403  {object} 	dto.DefaultResponse
-// @Failure      409  {object}  dto.DefaultResponse
-// @Router        /admin/auth/login/ [post]
+// Enable sign in and authorization for Admin with valid credentials
+// Validate Admin credentials, authenticate and authorize with JWT provision
 func Login(c *gin.Context) {
 
 	credentials, allowedToLogin := mid.RateLimitLogin(c)
@@ -114,16 +94,8 @@ func Login(c *gin.Context) {
 	}
 }
 
-// SendOTPToAdminMail godoc
-// @Summary      initiate email validation for admin login concurrency
-// @Description  Send OTP to specified admin email address for authentication
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      202  {object}  dto.DefaultResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router        /admin/auth/login/send-otp [post]
+// Initiate email validation for admin login concurrency
+// Send OTP to specified admin email address for authentication
 func GenerateAuthOTP(c *gin.Context) {
 
 	cred, allowedToGenerate := mid.RateLimitOTPGeneration(c)
@@ -139,17 +111,8 @@ func GenerateAuthOTP(c *gin.Context) {
 	}
 }
 
-// ValidateAuthOTPSentToAdmin godoc
-// @Summary      Enable admin login concurrency via otp confirmation
-// @Description  validate OTP to specified admin email address for authentication
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  dto.DefaultResponse
-// @Success      200  {object}  dto.LoginResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router        /admin/auth/login/verify [post]
+// Enable admin login concurrency via otp confirmation
+// Validate OTP to specified admin email address for authentication
 func ValidateLoginOTP(c *gin.Context) {
 
 	credentials, allowedToValidate := mid.RateLimitOTPValidation(c)
@@ -176,16 +139,8 @@ func ValidateLoginOTP(c *gin.Context) {
 
 }
 
-// RefreshAdminToken godoc
-// @Summary      Refresh Expired Access Token
-// @Description  Create New Access Token for Admin Authentication with Refresh Token
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  dto.RefreshTokenResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router        /admin/auth/refresh/ [get]
+// Refresh Expired Access Token
+// Create New Access Token for Admin Authentication with Refresh Token
 func RefreshAuthToken(c *gin.Context) {
 
 	func() {
@@ -208,16 +163,8 @@ func RefreshAuthToken(c *gin.Context) {
 	}()
 }
 
-// LogoutAdmin godoc
-// @Summary      Enable sign out and session delete for admin with valid credentials
-// @Description  Log patient out with server wipe of session data
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  dto.LoginResponse
-// @Failure      401  {object}  dto.DefaultResponse
-// @Failure      429  {object}  dto.DefaultResponse
-// @Router        /admin/auth/logout/ [delete]
+// Enable sign out and session delete for admin with valid credentials
+// Log patient out with server wipe of session data
 func Logout(c *gin.Context) {
 
 	func() {
