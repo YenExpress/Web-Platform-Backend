@@ -35,7 +35,7 @@ func main() {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{config.DevOrigin, config.StagingOrigin, config.ProdOrigin},
+		AllowOrigins:     []string{config.DevOrigin, config.StagingOrigin, config.ProdOrigin, config.PreLaunchOrigin},
 		AllowMethods:     []string{},
 		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "x-api-key"},
 		ExposeHeaders:    []string{"Content-Length"},
