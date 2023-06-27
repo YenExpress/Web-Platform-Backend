@@ -59,8 +59,9 @@ func RegisterValidation() bool {
 }
 
 var (
-	DevOrigin     string                = goDotEnvVariable("DevCrossOrigin")
-	ProdOrigin    string                = goDotEnvVariable("ProdCrossOrigin")
+	PreLaunchOrigin string = goDotEnvVariable("PreLaunchOrigin")
+	DevOrigin       string = goDotEnvVariable("DevCrossOrigin")
+	// ProdOrigin      string                = goDotEnvVariable("ProdCrossOrigin")
 	StagingOrigin string                = goDotEnvVariable("StagingCrossOrigin")
 	ServicePort   string                = goDotEnvVariable("ServicePort")
 	TaskMasterCfg *cogman_config.Config = &cogman_config.Config{
@@ -75,7 +76,7 @@ var (
 		HighPriorityQueueCount: 2,
 		LowPriorityQueueCount:  4}
 	CustomValidatorsActive bool   = RegisterValidation()
-	DatabaseURI            string = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=verify-full",
+	DatabaseURI            string = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable",
 		goDotEnvVariable("DBHost"), goDotEnvVariable("DBUser"), goDotEnvVariable("DBPwd"), goDotEnvVariable("DBName"))
 
 	JwtSecret          string = goDotEnvVariable("JwtSecret")

@@ -2,10 +2,9 @@ package main
 
 import (
 	"YenExpress/config"
-	ad_model "YenExpress/service/admin/models"
 	ad_route "YenExpress/service/admin/routes"
 	"YenExpress/service/dto"
-	p_model "YenExpress/service/patient/models"
+	sec "YenExpress/service/middlewares"
 	p_route "YenExpress/service/patient/routes"
 	"YenExpress/service/searchAPI"
 
@@ -21,13 +20,20 @@ import (
 
 func init() {
 
-	config.ConnectDB(&p_model.Patient{})
-	config.ConnectDB(&ad_model.Admin{})
+	config.ConnectDB(&dto.Patient{})
+	config.ConnectDB(&dto.Admin{})
+	config.ConnectDB(&dto.DrugCategory{})
 	config.ConnectDB(&dto.Drug{})
 	config.ConnectDB(&dto.DrugOrder{})
 	config.ConnectDB(&dto.WaitList{})
+	config.ConnectDB(&dto.DrugCategory{})
 	helper.StartTaskMaster()
-
+	// migrator := config.DB.Migrator()
+	// migrator.DropTable(&dto.Patient{})
+	// migrator.DropTable(&dto.Admin{})
+	// migrator.DropTable(&dto.Drug{})
+	// migrator.DropTable(&dto.DrugOrder{})
+	// migrator.DropTable(&dto.DrugCategory{})
 }
 
 func main() {
@@ -35,7 +41,7 @@ func main() {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{config.DevOrigin, config.StagingOrigin, config.ProdOrigin, config.PreLaunchOrigin},
+		AllowOrigins:     []string{config.DevOrigin, config.StagingOrigin, config.PreLaunchOrigin},
 		AllowMethods:     []string{},
 		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "x-api-key"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -44,6 +50,7 @@ func main() {
 
 	p_route.AuthRoute(router)
 	ad_route.AuthRoute(router)
+	ad_route.ProductRoute(router)
 
 	router.GET("/", func(c *gin.Context) {
 		ip, _ := helper.GetIPAddress(c)
@@ -82,7 +89,7 @@ func main() {
 
 	})
 
-	router.POST("/query", searchAPI.GraphqlHandler())
+	router.POST("/query", sec.APIKeyAuthorization(), searchAPI.GraphqlHandler())
 	router.GET("/graphql-playground", searchAPI.PlaygroundHandler())
 
 	port := config.ServicePort

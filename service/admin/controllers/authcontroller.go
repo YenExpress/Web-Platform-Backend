@@ -28,14 +28,14 @@ func CreateAdmin(c *gin.Context) {
 			return
 		}
 
-		var user *models.Admin
+		var user *dto.Admin
 		err := config.DB.Where("email = ?", input.Email).First(&user).Error
 		if err == nil {
 			c.JSON(http.StatusConflict, dto.DefaultResponse{Message: "Admin Account Already Exists"})
 			return
 		}
 
-		user = &models.Admin{
+		user = &dto.Admin{
 			FirstName: input.FirstName, LastName: input.LastName,
 			Email: input.Email, Password: input.Password,
 			Role: input.Role,
@@ -63,7 +63,7 @@ func Login(c *gin.Context) {
 	if allowedToLogin {
 		func() {
 
-			var user *models.Admin
+			var user *dto.Admin
 			err := config.DB.Where("Email = ?", credentials.Email).First(&user).Error
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, dto.DefaultResponse{Message: "Incorrect Email"})
@@ -118,7 +118,7 @@ func ValidateLoginOTP(c *gin.Context) {
 	credentials, allowedToValidate := mid.RateLimitOTPValidation(c)
 	if allowedToValidate {
 		func() {
-			var user *models.Admin
+			var user *dto.Admin
 			err := config.DB.Where("email = ?", credentials.Email).First(&user).Error
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, dto.DefaultResponse{Message: "Admin Does Not Exist"})

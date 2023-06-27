@@ -1,4 +1,5 @@
 .env
-.env.test.local
+.env.test
 /test
 /.vscode
+docker-compose.yml

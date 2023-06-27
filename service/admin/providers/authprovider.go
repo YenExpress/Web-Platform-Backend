@@ -2,13 +2,14 @@ package providers
 
 import (
 	"YenExpress/config"
+	"YenExpress/helper"
 	model "YenExpress/service/admin/models"
+	"YenExpress/service/dto"
 	"YenExpress/service/guard"
 	"YenExpress/service/postoffice"
-
-	"YenExpress/helper"
 	"errors"
 	"log"
+	"strconv"
 	"sync"
 	"time"
 
@@ -19,8 +20,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func userExists(id string) bool {
-	var user *model.Admin
+func userExists(id uint) bool {
+	var user *dto.Admin
 	err := config.DB.Where("ID = ?", id).First(&user).Error
 	if err != nil {
 		return false
@@ -36,7 +37,8 @@ type LoginManager struct {
 
 // cache user session data upon successful login and authentication
 // return error and sessionID value
-func (manager *LoginManager) CreateNewSession(user model.Admin, ip_addr string) string {
+func (manager *LoginManager) CreateNewSession(user dto.Admin, ip_addr string) string {
+	id_str := strconv.FormatUint(uint64(user.ID), 10)
 	sessID := uuid.New().String()
 	data := model.SessionStore{
 		Session: map[string]model.SessionData{
@@ -48,45 +50,48 @@ func (manager *LoginManager) CreateNewSession(user model.Admin, ip_addr string) 
 		},
 	}
 	tokenized, _ := data.Encode()
-	manager.client.HSet(manager.sessionKey, user.ID, tokenized).Val()
+	manager.client.HSet(manager.sessionKey, id_str, tokenized).Val()
 	return sessID
 }
 
 // add another session initiated by user on a different device
 // return error and sessionID value
-func (manager *LoginManager) AddSession(user model.Admin, ip_addr string) string {
-	if manager.client.HExists(manager.sessionKey, user.ID).Val() {
+func (manager *LoginManager) AddSession(user dto.Admin, ip_addr string) string {
+	id_str := strconv.FormatUint(uint64(user.ID), 10)
+	if manager.client.HExists(manager.sessionKey, id_str).Val() {
 		var cookie model.SessionStore
-		cookie.Decode([]byte(manager.client.HGet(manager.sessionKey, user.ID).Val()))
+		cookie.Decode([]byte(manager.client.HGet(manager.sessionKey, id_str).Val()))
 		sessID := uuid.New().String()
 		cookie.Session[sessID] = model.SessionData{
 			SessionID: sessID, IPAddress: ip_addr,
 			Email: user.Email, LoggedIn: time.Now(), UserID: user.ID,
 		}
 		tokenized, _ := cookie.Encode()
-		manager.client.HSet(manager.sessionKey, user.ID, tokenized).Val()
+		manager.client.HSet(manager.sessionKey, id_str, tokenized).Val()
 		return sessID
 	}
 	return manager.CreateNewSession(user, ip_addr)
 }
 
 // check if user is logged in and has an active session
-func (manager *LoginManager) CheckActiveSession(userID string) bool {
-	return manager.client.HExists(manager.sessionKey, userID).Val()
+func (manager *LoginManager) CheckActiveSession(userID uint) bool {
+	id_str := strconv.FormatUint(uint64(userID), 10)
+	return manager.client.HExists(manager.sessionKey, id_str).Val()
 }
 
-func (manager *LoginManager) EndSession(userID string, sessionID string) model.SessionData {
-	if manager.client.HExists(manager.sessionKey, userID).Val() {
+func (manager *LoginManager) EndSession(userID uint, sessionID string) model.SessionData {
+	id_str := strconv.FormatUint(uint64(userID), 10)
+	if manager.client.HExists(manager.sessionKey, id_str).Val() {
 		var cookie model.SessionStore
-		cookie.Decode([]byte(manager.client.HGet(manager.sessionKey, userID).Val()))
+		cookie.Decode([]byte(manager.client.HGet(manager.sessionKey, id_str).Val()))
 		session_data := cookie.Session[sessionID]
 		delete(cookie.Session, sessionID)
 		if len(cookie.Session) == 0 {
-			manager.client.HDel(manager.sessionKey, userID)
+			manager.client.HDel(manager.sessionKey, id_str)
 			return session_data
 		}
 		tokenized, _ := cookie.Encode()
-		manager.client.HSet(manager.sessionKey, userID, tokenized).Val()
+		manager.client.HSet(manager.sessionKey, id_str, tokenized).Val()
 		return session_data
 	}
 	return model.SessionData{}
@@ -116,7 +121,7 @@ func (manager *LoginManager) AuthConcurrentSignin(email string) {
 	helper.QueueTask(task, handlerfunc)
 }
 
-func (manager *LoginManager) EnableConcurrentSignin(user model.Admin, ip_addr, otp string) (identifier, accessToken, refreshToken string, err error) {
+func (manager *LoginManager) EnableConcurrentSignin(user dto.Admin, ip_addr, otp string) (identifier, accessToken, refreshToken string, err error) {
 	if manager.client.HExists(manager.validationMailKey, user.Email).Val() {
 		var auth_details postoffice.OneTimePassword
 		auth_details.Unmarshal([]byte(manager.client.HGet(manager.validationMailKey, user.Email).Val()))
@@ -134,7 +139,7 @@ func (manager *LoginManager) EnableConcurrentSignin(user model.Admin, ip_addr, o
 
 }
 
-func (manager *LoginManager) GenerateAuthTokens(user model.Admin, sessionID string) (identifier, accessToken, refreshToken string) {
+func (manager *LoginManager) GenerateAuthTokens(user dto.Admin, sessionID string) (identifier, accessToken, refreshToken string) {
 	var token1, token2, token3 string
 	var wg sync.WaitGroup
 	wg.Add(3)

@@ -16,7 +16,7 @@ var (
 
 type JWTStrategy struct {
 	SecretKey string
-	UserValid func(id string) bool
+	UserValid func(id uint) bool
 }
 
 func (maker *JWTStrategy) CreateToken(payload Bearer) (token string) {
@@ -83,24 +83,6 @@ func (maker *JWTStrategy) GetPayloadFromToken(token, variety string) (*Bearer, e
 	}
 	return payload, nil
 }
-
-// func GetBearerToken(c *gin.Context) (string, error) {
-// 	credentials := c.Request.Header.Get("Authorization")
-// 	credList := strings.Split(credentials, ",")
-// 	if len(credList) > 2 {
-// 		return "", errors.New("Authorization Header with incorrect format")
-// 	}
-// 	token := ""
-// 	for _, val := range credList {
-// 		if strings.HasPrefix(val, "Bearer ") {
-// 			token = strings.TrimPrefix(val, "Bearer ")
-// 		}
-// 	}
-// 	if token == "" {
-// 		return "", errors.New("Bearer Unknown")
-// 	}
-// 	return token, nil
-// }
 
 func GetBearerToken(c *gin.Context) (string, error) {
 	authString := c.Request.Header.Get("Authorization")

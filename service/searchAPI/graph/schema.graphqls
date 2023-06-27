@@ -7,12 +7,22 @@ scalar Time
 type Drug {
   id: String!
   brandName: String!
-  category: String!
+  categoryID: Int!
   price: String!
   description: String
   availability: String
   photo: String
+  category: Category!
 }
+
+type Category {
+	id: Int!
+	name: String!
+	description: String
+	parentCategoryID: Int
+  parentCategory: Category
+}
+
 
 type DrugOrder {
   id: String!
@@ -22,12 +32,13 @@ type DrugOrder {
   status: String!
   deliveryAddress: String! 
   customerPhone: String!
-  customerID : String!
+  customerID : String
 
 }
 
 type Query {
   Drugs: [Drug!]!
   DrugOrders: [DrugOrder!]!
+  Categories: [Category!]!
 }
 

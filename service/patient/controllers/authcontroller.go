@@ -28,14 +28,14 @@ func Register(c *gin.Context) {
 			return
 		}
 
-		var user *models.Patient
+		var user *dto.Patient
 		err := config.DB.Where("email = ?", input.Email).First(&user).Error
 		if err == nil {
 			c.JSON(http.StatusConflict, dto.DefaultResponse{Message: "User Account Already Exists"})
 			return
 		}
 
-		user = &models.Patient{
+		user = &dto.Patient{
 			FirstName: input.FirstName, LastName: input.LastName,
 			Email: input.Email, Password: input.Password,
 			Sex:      input.Sex,
@@ -66,7 +66,7 @@ func Login(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, dto.DefaultResponse{Message: err.Error()})
 		}
 
-		var user *models.Patient
+		var user *dto.Patient
 		err := config.DB.Where("Email = ?", credentials.Email).First(&user).Error
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, dto.DefaultResponse{Message: "Incorrect Email"})
@@ -98,7 +98,7 @@ func SendNewMailOTP(c *gin.Context) {
 
 		func() {
 
-			var user *models.Patient
+			var user *dto.Patient
 			err := config.DB.Where("email = ?", cred.Email).First(&user).Error
 			if err == nil {
 				c.JSON(http.StatusConflict, dto.DefaultResponse{Message: "User Account Already Exists"})
@@ -121,7 +121,7 @@ func ConfirmNewMail(c *gin.Context) {
 	if allowedToValidate {
 		func() {
 
-			var user *models.Patient
+			var user *dto.Patient
 			err := config.DB.Where("email = ?", credentials.Email).First(&user).Error
 			if err == nil {
 				c.JSON(http.StatusConflict, dto.DefaultResponse{Message: "User Account Already Exists"})

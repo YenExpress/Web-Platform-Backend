@@ -2,8 +2,8 @@ package providers
 
 import (
 	"YenExpress/config"
+	"YenExpress/service/dto"
 	"YenExpress/service/guard"
-	model "YenExpress/service/patient/models"
 	"YenExpress/service/postoffice"
 
 	"YenExpress/helper"
@@ -18,8 +18,8 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func userExists(id string) bool {
-	var user *model.Patient
+func userExists(id uint) bool {
+	var user *dto.Patient
 	err := config.DB.Where("ID = ?", id).First(&user).Error
 	if err != nil {
 		return false
@@ -30,7 +30,7 @@ func userExists(id string) bool {
 type LoginManager struct {
 }
 
-func (manager *LoginManager) GenerateAuthTokens(user model.Patient) (identifier, accessToken, refreshToken string) {
+func (manager *LoginManager) GenerateAuthTokens(user dto.Patient) (identifier, accessToken, refreshToken string) {
 	var token1, token2, token3 string
 	var wg sync.WaitGroup
 	wg.Add(3)

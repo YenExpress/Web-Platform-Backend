@@ -7,8 +7,6 @@ package graph
 import (
 	"YenExpress/config"
 	"YenExpress/service/searchAPI/graph/model"
-
-	// "YenExpress/service/dto"
 	"context"
 	"fmt"
 )
@@ -16,17 +14,26 @@ import (
 // Drugs is the resolver for the Drugs field.
 func (r *queryResolver) Drugs(ctx context.Context) ([]*model.Drug, error) {
 	var drugs []*model.Drug
-	err := config.DB.Find(&drugs).Error
+	err := config.DB.Preload("Category").Find(&drugs).Error
 	if err == nil {
 		return drugs, nil
 	}
 	return []*model.Drug{}, err
-	// panic(fmt.Errorf("not implemented: Drugs - Drugs"))
 }
 
 // DrugOrders is the resolver for the DrugOrders field.
 func (r *queryResolver) DrugOrders(ctx context.Context) ([]*model.DrugOrder, error) {
 	panic(fmt.Errorf("not implemented: DrugOrders - DrugOrders"))
+}
+
+// Categories is the resolver for the Categories field.
+func (r *queryResolver) Categories(ctx context.Context) ([]*model.Category, error) {
+	var categories []*model.Category
+	err := config.DB.Preload("ParentCategory").Find(&categories).Error
+	if err == nil {
+		return categories, nil
+	}
+	return []*model.Category{}, err
 }
 
 // Query returns QueryResolver implementation.

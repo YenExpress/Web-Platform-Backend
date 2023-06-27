@@ -1,13 +1,8 @@
 package models
 
 import (
-	"YenExpress/config"
 	"encoding/json"
 	"time"
-
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type CreateDTO struct {
@@ -18,46 +13,12 @@ type CreateDTO struct {
 	Role      string `json:"role" validate:"required,Enum=admin_superadmin"`
 }
 
-type Admin struct {
-	gorm.Model
-	ID        string `gorm:"primarykey"`
-	FirstName string
-	LastName  string
-	Role      string `gorm:"default:Admin"`
-	Email     string `gorm:"unique"`
-	Password  string
-	Sex       string `gorm:"default:Male"`
-	Photo     string `gorm:"not null:false"`
-}
-
-func (user *Admin) SaveNew() (*Admin, error) {
-	err := config.DB.Create(&user).Error
-	if err != nil {
-		return &Admin{}, err
-	}
-	return user, nil
-}
-
-func (user *Admin) BeforeCreate(*gorm.DB) error {
-	user.ID = uuid.New().String()
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-	user.Password = string(passwordHash)
-	return nil
-}
-
-func (user *Admin) ValidatePwd(provided_password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(provided_password))
-}
-
 type SessionData struct {
 	SessionID string    `json:"sessionID"`
 	IPAddress string    `json:"ipAddr,omitempty"`
 	Email     string    `json:"Email"`
 	LoggedIn  time.Time `json:"loggedIn"`
-	UserID    string    `json:"userID"`
+	UserID    uint      `json:"userID"`
 }
 
 type SessionStore struct {

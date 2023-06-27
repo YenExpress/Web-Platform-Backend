@@ -2,25 +2,36 @@
 
 package model
 
-import ("time")
+import (
+	"time"
+)
+
+type Category struct {
+	ID               int       `json:"id"`
+	Name             string    `json:"name"`
+	Description      *string   `json:"description,omitempty"`
+	ParentCategoryID *int      `json:"parentCategoryID,omitempty"`
+	ParentCategory   *Category `json:"parentCategory,omitempty"`
+}
 
 type Drug struct {
-	ID           string  `json:"id"`
-	BrandName    string  `json:"brandName"`
-	Category     string  `json:"category"`
-	Price        string  `json:"price"`
-	Description  *string `json:"description,omitempty"`
-	Availability *string `json:"availability,omitempty"`
-	Photo *string `json:"photo,omitempty"`
+	ID           string    `json:"id"`
+	BrandName    string    `json:"brandName"`
+	CategoryID   int       `json:"categoryID"`
+	Price        string    `json:"price"`
+	Description  *string   `json:"description,omitempty"`
+	Availability *string   `json:"availability,omitempty"`
+	Photo        *string   `json:"photo,omitempty"`
+	Category     *Category `json:"category"`
 }
 
 type DrugOrder struct {
-	ID               string  `json:"id"`
-	OrderDate        time.Time  `json:"orderDate"`
-	ItemsDescription *string `json:"itemsDescription,omitempty"`
-	AmountPaid       string  `json:"amountPaid"`
-	Status           string  `json:"status"`
-	DeliveryAddress  string  `json:"deliveryAddress"`
-	CustomerPhone    string  `json:"customerPhone"`
-	CustomerID       string  `json:"customerID"`
+	ID               string    `json:"id"`
+	OrderDate        time.Time `json:"orderDate"`
+	ItemsDescription *string   `json:"itemsDescription,omitempty"`
+	AmountPaid       string    `json:"amountPaid"`
+	Status           string    `json:"status"`
+	DeliveryAddress  string    `json:"deliveryAddress"`
+	CustomerPhone    string    `json:"customerPhone"`
+	CustomerID       *string   `json:"customerID,omitempty"`
 }
