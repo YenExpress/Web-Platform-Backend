@@ -76,7 +76,7 @@ var (
 		HighPriorityQueueCount: 2,
 		LowPriorityQueueCount:  4}
 	CustomValidatorsActive bool   = RegisterValidation()
-	DatabaseURI            string = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable",
+	DatabaseURI            string = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=verify-full",
 		goDotEnvVariable("DBHost"), goDotEnvVariable("DBUser"), goDotEnvVariable("DBPwd"), goDotEnvVariable("DBName"))
 
 	JwtSecret          string = goDotEnvVariable("JwtSecret")
