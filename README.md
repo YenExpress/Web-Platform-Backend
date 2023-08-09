@@ -37,10 +37,10 @@ The project is written in Go 1.18.2 and leverages the
 
     use command `make build`
 
-## To run all application in debug mode
+## To run application in debug mode
 
     use command `make run`
 
-## To run preview application by executing binary
+## To preview application by executing binary
 
     use command `make preview`
