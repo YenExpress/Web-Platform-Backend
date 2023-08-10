@@ -1,4 +1,4 @@
-package dtm
+package dto
 
 type RegisterDeveloperBody struct {
 	FirstName string `json:"firstName" binding:"required"`
@@ -6,3 +6,9 @@ type RegisterDeveloperBody struct {
 	Email     string `json:"email" binding:"required,email"`
 	Password  string `json:"password" binding:"required"`
 }
+
+// type LoginBody struct {
+// 	Email     string `json:"email" binding:"required,email"`
+// 	Password  string `json:"password" binding:"required"`
+// 	IPAddress string
+// }

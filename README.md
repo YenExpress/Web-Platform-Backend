@@ -13,12 +13,12 @@ The project is written in Go 1.18.2 and leverages the
 
 - `internal`: This directory holds internal packages that are localized to the microservice. This is a convention to prevent other projects from importing these internal packages without proper context and relationship.
   - `api`: This package contains all API-related logic.
-    - `common` : Contains common constants, error and custom datatypes used throughout the application..
-    - `pkg` : Contains sub-modules that represent different areas of auth functionality e.g `developer`
+    - `common` : Contains common constants, error and custom datatypes used throughout the application.
+    - `pkg` : Contains sub-modules for authentication specific to user category e.g `developer`
     - `config`: Configuration management related code resides   here.
     - `database`: Database-related code, such as database connections.
-    - `shared` : Contains shared components like `dto` (Data Transfer Objects) and `middlewares`.
-  - `utils` : Helper fucntions not closely tied to the low level API implementation logic but relevant to achieve tasks.
+    - `shared` : Contains shared authentication resources generic across user categories e.g generic `dto` (Data Transfer Objects), `interactors`, `handlers` and `middlewares`.
+  - `utils` : Helper functions not closely tied to the low level API implementation logic but relevant to achieve tasks.
 - `prestart` : Contains code to be run before application starts.
 - `test` : All test files reside here.
 - `web` : Contains public folders and files including static files and templates.

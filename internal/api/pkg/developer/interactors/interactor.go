@@ -3,10 +3,11 @@ package interactors
 import (
 	"errors"
 
-	"github.com/ignitedotdev/auth-ms/internal/api/database/entities"
+	EN "github.com/ignitedotdev/auth-ms/internal/api/database/entities"
 
-	"github.com/ignitedotdev/auth-ms/internal/api/common/exceptions"
-	repo "github.com/ignitedotdev/auth-ms/internal/api/shared/repositories"
+	EXC "github.com/ignitedotdev/auth-ms/internal/api/common/exceptions"
+	SI "github.com/ignitedotdev/auth-ms/internal/api/shared/interactor"
+	INT "github.com/ignitedotdev/auth-ms/internal/api/shared/interfaces"
 
 	"gorm.io/gorm"
 )
@@ -14,19 +15,20 @@ import (
 // Use case object to handle all developer related authentication processes
 // Service hinged upon repository serving as data access layer
 type DeveloperAuthService struct {
-	repository repo.IUserRepository[entities.Developer]
+	SI.AuthService
+	repository INT.IRepository[EN.Developer]
 }
 
 // constructor function to create an instance of developer auth use case object
-func NewDeveloperAuthService(userRepository repo.IUserRepository[entities.Developer]) *DeveloperAuthService {
+func NewDeveloperAuthService(userRepository INT.IRepository[EN.Developer]) *DeveloperAuthService {
 	return &DeveloperAuthService{repository: userRepository}
 }
 
 // register user on platform with required information provided
 func (usecase *DeveloperAuthService) NativeSignUp(firstName, lastName, email, password string) error {
 
-	newDeveloper := &entities.Developer{
-		BUser: entities.BUser{
+	newDeveloper := &EN.Developer{
+		BUser: EN.BUser{
 			FirstName: firstName, LastName: lastName,
 			Email: email, HashedPassword: password,
 		},
@@ -34,7 +36,7 @@ func (usecase *DeveloperAuthService) NativeSignUp(firstName, lastName, email, pa
 
 	if err := usecase.repository.SaveNew(newDeveloper); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return exceptions.UserExists
+			return EXC.UserExists
 		}
 		return err
 	}
@@ -42,19 +44,19 @@ func (usecase *DeveloperAuthService) NativeSignUp(firstName, lastName, email, pa
 
 }
 
-// sign use in with credentails `email` and `password`
-func (usecase *DeveloperAuthService) NativeLogin(email, password string) error {
+// // sign use in with credentails `email` and `password`
+// func (usecase *DeveloperAuthService) NativeLogin(email, password string) error {
 
-	developer, err := usecase.repository.GetByEmail(email)
-	if err != nil {
-		return err
-	} else if developer == nil {
-		return exceptions.UserDoesNotExist
-	}
+// 	developer, err := usecase.repository.GetByEmail(email)
+// 	if err != nil {
+// 		return err
+// 	} else if developer == nil {
+// 		return EXC.UserDoesNotExist
+// 	}
 
-	if err = developer.ValidatePwd(password); err != nil {
-		return exceptions.InvalidPassword
-	}
-	return nil
+// 	if err = developer.ValidatePwd(password); err != nil {
+// 		return EXC.InvalidPassword
+// 	}
+// 	return nil
 
-}
+// }

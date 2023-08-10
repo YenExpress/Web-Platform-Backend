@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/interactors"
-	repo "github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/repositories"
+	I "github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/interactors"
+	R "github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/repository"
 )
 
 var (
-	repository = repo.NewDeveloperRepository()
-	service    = interactors.NewDeveloperAuthService(repository)
+	repository = R.NewDeveloperRepository()
+	service    = I.NewDeveloperAuthService(repository)
 	Handler    = NewDeveloperAuthHandler(service)
 )
