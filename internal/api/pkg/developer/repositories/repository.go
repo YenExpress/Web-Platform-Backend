@@ -1,12 +1,12 @@
 package repositories
 
 import (
-	repo "github.com/ignitedotdev/auth-ms/internal/api/common/repositories"
-	"github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/entities/models"
+	"github.com/ignitedotdev/auth-ms/internal/api/database/entities"
+	repo "github.com/ignitedotdev/auth-ms/internal/api/shared/repositories"
 )
 
 type DeveloperRepository struct {
-	repo.BUserRepository[models.Developer]
+	repo.BUserRepository[entities.Developer]
 }
 
 func NewDeveloperRepository() *DeveloperRepository {

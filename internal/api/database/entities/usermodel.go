@@ -1,4 +1,4 @@
-package models
+package entities
 
 import (
 	"golang.org/x/crypto/bcrypt"
@@ -27,4 +27,10 @@ func (user *BUser) BeforeCreate(*gorm.DB) error {
 // Compare password with hash value saved in database
 func (user *BUser) ValidatePwd(strPwd string) error {
 	return bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(strPwd))
+}
+
+// Developer model builds on base user implemeting same methods
+type Developer struct {
+	gorm.Model
+	BUser
 }

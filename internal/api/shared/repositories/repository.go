@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/ignitedotdev/auth-ms/internal/database"
+	database "github.com/ignitedotdev/auth-ms/internal/api/database/connectors"
 )
 
 // interface describing common repository behaviours for different user models

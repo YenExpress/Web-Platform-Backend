@@ -2,13 +2,12 @@ package routes
 
 import (
 	"github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/handlers"
-	middle "github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/middlewares"
-	"github.com/ignitedotdev/auth-ms/pkg/utils"
+	middle "github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/interceptors"
 
 	"github.com/labstack/echo/v4"
 )
 
-func groupRoutes(router echo.Echo) {
+func GroupRoutes(router echo.Echo) {
 
 	group := router.Group("/auth/developer")
 
@@ -20,5 +19,3 @@ func groupRoutes(router echo.Echo) {
 		return handlers.Handler.HandleNativeSignUp(c, middle.RegisterDTOValidator)
 	})
 }
-
-var Group = []utils.RouterFunc{groupRoutes}

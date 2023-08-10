@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -12,7 +13,7 @@ func LoadEnv(env_path string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// fmt.Println("Here's the working directory where environment file is to be loaded ==> ", wd)
+	fmt.Println("Here's the working directory where environment file is to be loaded ==> ", wd)
 	err = godotenv.Load(wd + env_path)
 	if err != nil {
 		log.Println(err)
