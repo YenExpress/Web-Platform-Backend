@@ -30,7 +30,7 @@ func (user *BUser) ValidatePwd(strPwd string) error {
 }
 
 // Developer model builds on base user implemeting same methods
-type Developer struct {
+type Patient struct {
 	gorm.Model
 	BUser
 }

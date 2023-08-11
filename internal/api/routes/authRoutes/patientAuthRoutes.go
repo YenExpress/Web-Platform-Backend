@@ -1,15 +1,15 @@
-package routes
+package authRoutes
 
 import (
-	"github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/handlers"
-	MW "github.com/ignitedotdev/auth-ms/internal/api/pkg/developer/middlewares"
+	"yenexpress/internal/api/pkg/auth/handlers"
+	MW "yenexpress/internal/api/pkg/auth/middlewares"
 
 	"github.com/labstack/echo/v4"
 )
 
-func GroupRoutes(router echo.Echo) {
+func GroupPatientAuthRoutes(router *echo.Echo) {
 
-	group := router.Group("/auth/developer")
+	group := router.Group("/auth/patient")
 
 	group.POST("/login", func(c echo.Context) error {
 		return handlers.Handler.HandleNativeLogin(c, MW.LoginDTOValidator)

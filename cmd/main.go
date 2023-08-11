@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/ignitedotdev/auth-ms/internal/api/config"
-	"github.com/ignitedotdev/auth-ms/prestart"
+	"yenexpress/internal/api/config"
+	"yenexpress/prestart"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,8 +20,12 @@ func init() {
 
 func main() {
 	e := echo.New()
+	// mount index route
 	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Ignitedotdev Authentication Microservice!")
+		e.Logger.Info(fmt.Sprintf("Index Backend Service URL called by client with IP Address %v", c.RealIP()))
+		return c.String(http.StatusOK, "The YenExpress Backend Service is Active!")
 	})
+	// mount all other api routes
+	prestart.MountAllRoutes(e)
 	e.Logger.Fatal(e.Start(":1323"))
 }

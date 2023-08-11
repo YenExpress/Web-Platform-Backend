@@ -1,6 +1,6 @@
-# Ignite.dev Platform Authentication Microservice
+# YenExpress Online Pharmacy Backend
 
-This web server provides the Ignite.dev platform  with authentication capabilities including user account creation, login and session management, and all authentication and authorization related operations.
+This web server provides the YenExpress web application  with authentication capabilities, relevant data for different user operations and handles all data processing and storage for seamless user experience.
 
 
 The project is written in Go 1.18.2 and leverages the
@@ -13,11 +13,11 @@ The project is written in Go 1.18.2 and leverages the
 
 - `internal`: This directory holds internal packages that are localized to the microservice. This is a convention to prevent other projects from importing these internal packages without proper context and relationship.
   - `api`: This package contains all API-related logic.
-    - `common` : Contains common constants, error and custom datatypes used throughout the application.
-    - `pkg` : Contains sub-modules for authentication specific to user category e.g `developer`
-    - `config`: Configuration management related code resides   here.
-    - `database`: Database-related code, such as database connections.
-    - `shared` : Contains shared authentication resources generic across user categories e.g generic `dto` (Data Transfer Objects), `interactors`, `handlers` and `middlewares`.
+    - `routes` : Contains all defined routes and routegroups to be mounted in the application.
+    - `pkg` : Contains sub-modules for diffferent application functionalities specific e.g `auth`
+    - `config`: Configuration management related code resides  here.
+    - `database`: Database-related code, such as database connections and entities.
+    - `shared` : Contains shared resources generic to all sub modules contained in `pkg` e.g `interfaces`, `repositories` and `middlewares`.
   - `utils` : Helper functions not closely tied to the low level API implementation logic but relevant to achieve tasks.
 - `prestart` : Contains code to be run before application starts.
 - `test` : All test files reside here.

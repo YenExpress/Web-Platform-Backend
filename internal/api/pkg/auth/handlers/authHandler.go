@@ -1,27 +1,22 @@
-package handler
+package handlers
 
 import (
 	"errors"
 	"net/http"
 
-	"github.com/ignitedotdev/auth-ms/internal/api/shared/dto"
-	INT "github.com/ignitedotdev/auth-ms/internal/api/shared/interfaces"
-	SMW "github.com/ignitedotdev/auth-ms/internal/api/shared/middlewares"
+	"yenexpress/internal/api/pkg/auth/dto"
+	INT "yenexpress/internal/api/pkg/auth/interfaces"
+	SMW "yenexpress/internal/api/pkg/shared/middlewares"
 
-	EXC "github.com/ignitedotdev/auth-ms/internal/api/common/exceptions"
+	EXC "yenexpress/internal/api/pkg/auth/exceptions"
 
 	"github.com/labstack/echo/v4"
 )
 
 // Handler object depends on use case object to accomplish tasks related to authentication
 type AuthHandler struct {
-	service INT.IService
+	service INT.IAuthService
 }
-
-// // create new developer authentication service providing handlers for different operations
-// func NewDeveloperAuthHandler(service *SRC.DeveloperAuthService) *DeveloperAuthHandler {
-// 	return &DeveloperAuthHandler{service: service}
-// }
 
 // handler function to handle developer login with credentials
 // recieves input credentials from request body and returns response object

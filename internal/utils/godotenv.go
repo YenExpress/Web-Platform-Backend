@@ -22,6 +22,5 @@ func LoadEnv(env_path string) {
 }
 
 func GoDotEnvVariable(key string) string {
-	// loadEnv()
 	return os.Getenv(key)
 }

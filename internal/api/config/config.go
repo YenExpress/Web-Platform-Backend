@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/ignitedotdev/auth-ms/internal/utils"
+	"yenexpress/internal/utils"
 )
 
 type configModel struct {

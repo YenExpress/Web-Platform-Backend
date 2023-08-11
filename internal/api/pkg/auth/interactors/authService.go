@@ -1,15 +1,15 @@
-package interactor
+package interactors
 
 import (
-	EXC "github.com/ignitedotdev/auth-ms/internal/api/common/exceptions"
-	EN "github.com/ignitedotdev/auth-ms/internal/api/database/entities"
-	INT "github.com/ignitedotdev/auth-ms/internal/api/shared/interfaces"
+	EN "yenexpress/internal/api/database/entities"
+	EXC "yenexpress/internal/api/pkg/auth/exceptions"
+	INT "yenexpress/internal/api/pkg/shared/interfaces"
 )
 
 // Use case object to handle all developer related authentication processes
 // Service hinged upon repository serving as data access layer
 type AuthService struct {
-	repository INT.IRepository[EN.BUser]
+	repository INT.IUserRepository[EN.BUser]
 }
 
 // // constructor function to create an instance of developer auth use case object

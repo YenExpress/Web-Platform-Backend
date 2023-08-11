@@ -23,7 +23,6 @@ func (val *RequestBodyValidator[dto]) Validate(next echo.HandlerFunc) echo.Handl
 
 		// Add the parsed request body to the context for later use
 		c.Set("validatedRequestBody", reqBody)
-
 		// Call the next middleware/handler in the chain
 		return next(c)
 	}

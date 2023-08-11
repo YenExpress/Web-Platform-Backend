@@ -3,7 +3,7 @@ package connectors
 import (
 	"fmt"
 
-	"github.com/ignitedotdev/auth-ms/internal/api/config"
+	"yenexpress/internal/api/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
