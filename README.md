@@ -1,6 +1,6 @@
-# Ignite.dev Platform Authentication Microservice
+# Yen Express Backend Seervice
 
-This web server provides the Ignite.dev platform  with authentication capabilities including user account creation, login and session management, and all authentication and authorization related operations.
+This web server provides the Yen Express digital pharmacy platform with authentication, user management and all business operations capabilities.
 
 
 The project is written in TypeScript and leverages the [Adonis.js framework](https://adonisjs.com/).
