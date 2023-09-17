@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  dev-db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER : postgres
+      POSTGRES_PASSWORD : 123
+      POSTGRES_DB : YenExpressDevDB
+    networks:
+      - yenexpress
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  test-db:
+    image: postgres
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER : postgres
+      POSTGRES_PASSWORD : 123
+      POSTGRES_DB : YenExpressTestDB
+    networks:
+      - yenexpress
+networks:
+  yenexpress:
+volumes:
+  pg_data: 
